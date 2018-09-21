@@ -1,0 +1,646 @@
+Grammar
+
+    0 $accept: line $end
+
+    1 line: expr EOS
+
+    2 expr: expr AND expr
+    3     | expr OR expr
+    4     | NOT expr
+    5     | number relop number
+    6     | number
+
+    7 number: number PLUS number
+    8       | number MINUS number
+    9       | number TIMES number
+   10       | number DIVIDE number
+   11       | number MOD number
+   12       | number BAND number
+   13       | number BOR number
+   14       | LPAREN expr RPAREN
+   15       | leaf
+
+   16 leaf: VARIABLE
+   17     | SIGNED
+   18     | UNSIGNED
+   19     | STRING
+   20     | BOOL
+   21     | IPADDR
+
+   22 relop: GREATER
+   23      | GREATER_EQ
+   24      | LESS
+   25      | LESS_EQ
+   26      | EQUAL
+   27      | NEQUAL
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256)
+EOS (258) 1
+LPAREN (259) 14
+RPAREN (260) 14
+GREATER (261) 22
+GREATER_EQ (262) 23
+LESS (263) 24
+LESS_EQ (264) 25
+EQUAL (265) 26
+NEQUAL (266) 27
+NOT (267) 4
+AND (268) 2
+OR (269) 3
+BOR (270) 13
+BAND (271) 12
+MINUS (272) 8
+PLUS (273) 7
+MOD (274) 11
+DIVIDE (275) 10
+TIMES (276) 9
+VARIABLE (277) 16
+STRING (278) 19
+SIGNED (279) 17
+UNSIGNED (280) 18
+BOOL (281) 20
+IPADDR (282) 21
+
+
+Nonterminals, with rules where they appear
+
+$accept (28)
+    on left: 0
+line (29)
+    on left: 1, on right: 0
+expr (30)
+    on left: 2 3 4 5 6, on right: 1 2 3 4 14
+number (31)
+    on left: 7 8 9 10 11 12 13 14 15, on right: 5 6 7 8 9 10 11 12
+    13
+leaf (32)
+    on left: 16 17 18 19 20 21, on right: 15
+relop (33)
+    on left: 22 23 24 25 26 27, on right: 5
+
+
+state 0
+
+    0 $accept: . line $end
+
+    LPAREN    shift, and go to state 1
+    NOT       shift, and go to state 2
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    line    go to state 9
+    expr    go to state 10
+    number  go to state 11
+    leaf    go to state 12
+
+
+state 1
+
+   14 number: LPAREN . expr RPAREN
+
+    LPAREN    shift, and go to state 1
+    NOT       shift, and go to state 2
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    expr    go to state 13
+    number  go to state 11
+    leaf    go to state 12
+
+
+state 2
+
+    4 expr: NOT . expr
+
+    LPAREN    shift, and go to state 1
+    NOT       shift, and go to state 2
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    expr    go to state 14
+    number  go to state 11
+    leaf    go to state 12
+
+
+state 3
+
+   16 leaf: VARIABLE .
+
+    $default  reduce using rule 16 (leaf)
+
+
+state 4
+
+   19 leaf: STRING .
+
+    $default  reduce using rule 19 (leaf)
+
+
+state 5
+
+   17 leaf: SIGNED .
+
+    $default  reduce using rule 17 (leaf)
+
+
+state 6
+
+   18 leaf: UNSIGNED .
+
+    $default  reduce using rule 18 (leaf)
+
+
+state 7
+
+   20 leaf: BOOL .
+
+    $default  reduce using rule 20 (leaf)
+
+
+state 8
+
+   21 leaf: IPADDR .
+
+    $default  reduce using rule 21 (leaf)
+
+
+state 9
+
+    0 $accept: line . $end
+
+    $end  shift, and go to state 15
+
+
+state 10
+
+    1 line: expr . EOS
+    2 expr: expr . AND expr
+    3     | expr . OR expr
+
+    EOS  shift, and go to state 16
+    AND  shift, and go to state 17
+    OR   shift, and go to state 18
+
+
+state 11
+
+    5 expr: number . relop number
+    6     | number .
+    7 number: number . PLUS number
+    8       | number . MINUS number
+    9       | number . TIMES number
+   10       | number . DIVIDE number
+   11       | number . MOD number
+   12       | number . BAND number
+   13       | number . BOR number
+
+    GREATER     shift, and go to state 19
+    GREATER_EQ  shift, and go to state 20
+    LESS        shift, and go to state 21
+    LESS_EQ     shift, and go to state 22
+    EQUAL       shift, and go to state 23
+    NEQUAL      shift, and go to state 24
+    BOR         shift, and go to state 25
+    BAND        shift, and go to state 26
+    MINUS       shift, and go to state 27
+    PLUS        shift, and go to state 28
+    MOD         shift, and go to state 29
+    DIVIDE      shift, and go to state 30
+    TIMES       shift, and go to state 31
+
+    $default  reduce using rule 6 (expr)
+
+    relop  go to state 32
+
+
+state 12
+
+   15 number: leaf .
+
+    $default  reduce using rule 15 (number)
+
+
+state 13
+
+    2 expr: expr . AND expr
+    3     | expr . OR expr
+   14 number: LPAREN expr . RPAREN
+
+    RPAREN  shift, and go to state 33
+    AND     shift, and go to state 17
+    OR      shift, and go to state 18
+
+
+state 14
+
+    2 expr: expr . AND expr
+    3     | expr . OR expr
+    4     | NOT expr .
+
+    AND  shift, and go to state 17
+    OR   shift, and go to state 18
+
+    $default  reduce using rule 4 (expr)
+
+
+state 15
+
+    0 $accept: line $end .
+
+    $default  accept
+
+
+state 16
+
+    1 line: expr EOS .
+
+    $default  reduce using rule 1 (line)
+
+
+state 17
+
+    2 expr: expr AND . expr
+
+    LPAREN    shift, and go to state 1
+    NOT       shift, and go to state 2
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    expr    go to state 34
+    number  go to state 11
+    leaf    go to state 12
+
+
+state 18
+
+    3 expr: expr OR . expr
+
+    LPAREN    shift, and go to state 1
+    NOT       shift, and go to state 2
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    expr    go to state 35
+    number  go to state 11
+    leaf    go to state 12
+
+
+state 19
+
+   22 relop: GREATER .
+
+    $default  reduce using rule 22 (relop)
+
+
+state 20
+
+   23 relop: GREATER_EQ .
+
+    $default  reduce using rule 23 (relop)
+
+
+state 21
+
+   24 relop: LESS .
+
+    $default  reduce using rule 24 (relop)
+
+
+state 22
+
+   25 relop: LESS_EQ .
+
+    $default  reduce using rule 25 (relop)
+
+
+state 23
+
+   26 relop: EQUAL .
+
+    $default  reduce using rule 26 (relop)
+
+
+state 24
+
+   27 relop: NEQUAL .
+
+    $default  reduce using rule 27 (relop)
+
+
+state 25
+
+   13 number: number BOR . number
+
+    LPAREN    shift, and go to state 1
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    number  go to state 36
+    leaf    go to state 12
+
+
+state 26
+
+   12 number: number BAND . number
+
+    LPAREN    shift, and go to state 1
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    number  go to state 37
+    leaf    go to state 12
+
+
+state 27
+
+    8 number: number MINUS . number
+
+    LPAREN    shift, and go to state 1
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    number  go to state 38
+    leaf    go to state 12
+
+
+state 28
+
+    7 number: number PLUS . number
+
+    LPAREN    shift, and go to state 1
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    number  go to state 39
+    leaf    go to state 12
+
+
+state 29
+
+   11 number: number MOD . number
+
+    LPAREN    shift, and go to state 1
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    number  go to state 40
+    leaf    go to state 12
+
+
+state 30
+
+   10 number: number DIVIDE . number
+
+    LPAREN    shift, and go to state 1
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    number  go to state 41
+    leaf    go to state 12
+
+
+state 31
+
+    9 number: number TIMES . number
+
+    LPAREN    shift, and go to state 1
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    number  go to state 42
+    leaf    go to state 12
+
+
+state 32
+
+    5 expr: number relop . number
+
+    LPAREN    shift, and go to state 1
+    VARIABLE  shift, and go to state 3
+    STRING    shift, and go to state 4
+    SIGNED    shift, and go to state 5
+    UNSIGNED  shift, and go to state 6
+    BOOL      shift, and go to state 7
+    IPADDR    shift, and go to state 8
+
+    number  go to state 43
+    leaf    go to state 12
+
+
+state 33
+
+   14 number: LPAREN expr RPAREN .
+
+    $default  reduce using rule 14 (number)
+
+
+state 34
+
+    2 expr: expr . AND expr
+    2     | expr AND expr .
+    3     | expr . OR expr
+
+    OR  shift, and go to state 18
+
+    $default  reduce using rule 2 (expr)
+
+
+state 35
+
+    2 expr: expr . AND expr
+    3     | expr . OR expr
+    3     | expr OR expr .
+
+    $default  reduce using rule 3 (expr)
+
+
+state 36
+
+    7 number: number . PLUS number
+    8       | number . MINUS number
+    9       | number . TIMES number
+   10       | number . DIVIDE number
+   11       | number . MOD number
+   12       | number . BAND number
+   13       | number . BOR number
+   13       | number BOR number .
+
+    MINUS   shift, and go to state 27
+    PLUS    shift, and go to state 28
+    MOD     shift, and go to state 29
+    DIVIDE  shift, and go to state 30
+    TIMES   shift, and go to state 31
+
+    $default  reduce using rule 13 (number)
+
+
+state 37
+
+    7 number: number . PLUS number
+    8       | number . MINUS number
+    9       | number . TIMES number
+   10       | number . DIVIDE number
+   11       | number . MOD number
+   12       | number . BAND number
+   12       | number BAND number .
+   13       | number . BOR number
+
+    MINUS   shift, and go to state 27
+    PLUS    shift, and go to state 28
+    MOD     shift, and go to state 29
+    DIVIDE  shift, and go to state 30
+    TIMES   shift, and go to state 31
+
+    $default  reduce using rule 12 (number)
+
+
+state 38
+
+    7 number: number . PLUS number
+    8       | number . MINUS number
+    8       | number MINUS number .
+    9       | number . TIMES number
+   10       | number . DIVIDE number
+   11       | number . MOD number
+   12       | number . BAND number
+   13       | number . BOR number
+
+    MOD     shift, and go to state 29
+    DIVIDE  shift, and go to state 30
+    TIMES   shift, and go to state 31
+
+    $default  reduce using rule 8 (number)
+
+
+state 39
+
+    7 number: number . PLUS number
+    7       | number PLUS number .
+    8       | number . MINUS number
+    9       | number . TIMES number
+   10       | number . DIVIDE number
+   11       | number . MOD number
+   12       | number . BAND number
+   13       | number . BOR number
+
+    MOD     shift, and go to state 29
+    DIVIDE  shift, and go to state 30
+    TIMES   shift, and go to state 31
+
+    $default  reduce using rule 7 (number)
+
+
+state 40
+
+    7 number: number . PLUS number
+    8       | number . MINUS number
+    9       | number . TIMES number
+   10       | number . DIVIDE number
+   11       | number . MOD number
+   11       | number MOD number .
+   12       | number . BAND number
+   13       | number . BOR number
+
+    $default  reduce using rule 11 (number)
+
+
+state 41
+
+    7 number: number . PLUS number
+    8       | number . MINUS number
+    9       | number . TIMES number
+   10       | number . DIVIDE number
+   10       | number DIVIDE number .
+   11       | number . MOD number
+   12       | number . BAND number
+   13       | number . BOR number
+
+    $default  reduce using rule 10 (number)
+
+
+state 42
+
+    7 number: number . PLUS number
+    8       | number . MINUS number
+    9       | number . TIMES number
+    9       | number TIMES number .
+   10       | number . DIVIDE number
+   11       | number . MOD number
+   12       | number . BAND number
+   13       | number . BOR number
+
+    $default  reduce using rule 9 (number)
+
+
+state 43
+
+    5 expr: number relop number .
+    7 number: number . PLUS number
+    8       | number . MINUS number
+    9       | number . TIMES number
+   10       | number . DIVIDE number
+   11       | number . MOD number
+   12       | number . BAND number
+   13       | number . BOR number
+
+    BOR     shift, and go to state 25
+    BAND    shift, and go to state 26
+    MINUS   shift, and go to state 27
+    PLUS    shift, and go to state 28
+    MOD     shift, and go to state 29
+    DIVIDE  shift, and go to state 30
+    TIMES   shift, and go to state 31
+
+    $default  reduce using rule 5 (expr)
