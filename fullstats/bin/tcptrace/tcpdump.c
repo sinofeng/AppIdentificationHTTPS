@@ -389,8 +389,7 @@ case 100:
 
 /* support for writing a new pcap file */
 
-void
-PcapSavePacket(
+void PcapSavePacket(
     char *filename,
     struct ip *pip,
     void *plast)

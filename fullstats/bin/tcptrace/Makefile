@@ -147,7 +147,7 @@ INCLS = -I.  ${PCAP_INCS}
 # Probably want full optimization
 # FreeBSD needs	-Ae
 # HP needs	-Ae
-CFLAGS = $(CCOPT) $(DEFINES) -DYYTEXT_POINTER=1 -DHAVE_LIBM=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DSIZEOF_UNSIGNED_LONG_LONG_INT=8 -DSIZEOF_UNSIGNED_LONG_INT=4 -DSIZEOF_UNSIGNED_INT=4 -DSIZEOF_UNSIGNED_SHORT=2 -DHAVE_MKSTEMP=1 -DHAVE_VALLOC=1 -DHAVE_MEMALIGN=1 -DHAVE_INET_PTON=1 -DUSE_LLU=1   -D_BSD_SOURCE $(INCLS)
+CFLAGS = $(CCOPT) $(DEFINES) -DYYTEXT_POINTER=1 -DHAVE_LIBM=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DSIZEOF_UNSIGNED_LONG_LONG_INT=8 -DSIZEOF_UNSIGNED_LONG_INT=8 -DSIZEOF_UNSIGNED_INT=4 -DSIZEOF_UNSIGNED_SHORT=2 -DHAVE_MKSTEMP=1 -DHAVE_VALLOC=1 -DHAVE_MEMALIGN=1 -DHAVE_INET_PTON=1 -DUSE_LLU=1   $(INCLS)
 
 # Standard LIBS
 LDLIBS = -lm  ${PCAP_LDLIBS}
@@ -202,12 +202,12 @@ version.o: ${CFILES} Makefile
 # cause naming conflicts.  The Gnu versions let you get around that
 # easily.
 #
-YACC_VAL=bison -y
+YACC_VAL=yacc
 LEX_VAL=flex
 
 filt_parser.c: filt_parser.y filter.h
 	if test "${YACC_VAL}" = "bison -y" ; then \
-		bison -y -vd -p filtyy -o filt_parser.c $(srcdir)/filt_parser.y ;\
+		yacc -vd -p filtyy -o filt_parser.c $(srcdir)/filt_parser.y ;\
 		cp filt_parser.c flex_bison ;\
 		cp filt_parser.h flex_bison ;\
 	else \
