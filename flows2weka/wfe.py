@@ -1,20 +1,16 @@
 #!/usr/bin/env python
+#coding=utf-8
 import sys
 import hashlib
 from hashlib import md5
 from scapy.all import *
+from scapy.all import IP,TCP
+
+
 from tcp_stream import TCPStream
 import argparse
 
-
-#to test:
-#add for every tcp flag a counter. accumulate it per flow
-#do a chi square test to see if the number of flags are related with a protocol
-#ex:
-#http://hsc.uwe.ac.uk/dataanalysis/quantinfasschi.asp
-#packets=rdpcap("tcp_or_udp.pcap")
-
-
+# 五元组确定一条流
 def create_forward_flow_key(pkt):
 	return "%s:%s->%s:%s:%s"%(pkt.src,pkt.sport,pkt.dst,pkt.dport,pkt.proto)
 def create_reverse_flow_key(pkt):
@@ -32,7 +28,6 @@ def lookup_stream(key,reverse_key):
 		return key,None
 
 
-#I'm just using here, because I know my trace. Normally this function shouldn't use sport and dport. Instead a DPI engine 
 #HINT: appid https://code.google.com/p/appid/
 def proto_name(sport,dport,use_dpi=False,payload=None):
 	if dport == 80 or sport == 80:
@@ -41,6 +36,8 @@ def proto_name(sport,dport,use_dpi=False,payload=None):
 		return "mysql" 
 	if dport == 22 or sport == 22:
 		return "ssh"
+	if dport == 443 or sport == 443:
+		return "https"
 	return "unknown"
 
 parser = argparse.ArgumentParser(description='Process a pcap file, generating the flows and output it as arff or csv')
@@ -59,10 +56,10 @@ packets=rdpcap(pcap_file)
 flows = {}
 
 attrs = ['src','sport','dst','dport','proto','push_flag_ratio','average_len','average_payload_len','pkt_count','flow_average_inter_arrival_time','kolmogorov','shannon']
+
 #reduce it to TCP
 #TODO check if its possible to pack it again in the original class, that we are able to call .conversations() on this array
 packets = [ pkt for pkt in packets if IP in pkt for p in pkt if TCP in p ]
-
 #here we are sure ALL PACKETS ARE TCP
 for pkt in packets:
 	 flow_tuple = reverse_flow_tuple = key_to_search = None
@@ -90,5 +87,18 @@ else:
 	attrs.insert(0,"protocol_name")
 	print (','.join(attrs))
 
-for flow in flows.values():
-	print ("%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s"%(proto_name(flow.sport,flow.dport),flow.src,flow.sport,flow.dst,flow.dport,flow.proto,flow.push_flag_ratio(),flow.avrg_len(),flow.avrg_payload_len(),flow.pkt_count,flow.avrg_inter_arrival_time(),flow.kolmogorov(),flow.shannon()))
+def _export_object(obj):
+	return (bytes_base64(gzip.zlib.compress(six.moves.cPickle.dumps(obj, 2), 9)))
+
+with open('output.csv','w+')as f:
+	f.write('id,'+','.join(attrs)+'\n')
+	for (flow,i) in zip(flows.values(),range(len(flows))):
+		tmp=("%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s"%(proto_name(flow.sport,flow.dport),flow.src,flow.sport,flow.dst,flow.dport,flow.proto,flow.push_flag_ratio(),flow.avrg_len(),flow.avrg_payload_len(),flow.pkt_count,flow.avrg_inter_arrival_time(),flow.kolmogorov(),flow.shannon()))
+		with open("./payload/"+str(i)+'.txt','w+')as ff:
+			# ff.write(str(_export_object(flow.payload)))
+			ff.write(hexdump(flow.payload,dump=True))
+		f.write(str(i)+","+tmp+"\n")
+
+
+
+
