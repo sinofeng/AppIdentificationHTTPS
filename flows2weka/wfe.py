@@ -95,7 +95,6 @@ with open('output.csv','w+')as f:
 	for (flow,i) in zip(flows.values(),range(len(flows))):
 		tmp=("%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s"%(proto_name(flow.sport,flow.dport),flow.src,flow.sport,flow.dst,flow.dport,flow.proto,flow.push_flag_ratio(),flow.avrg_len(),flow.avrg_payload_len(),flow.pkt_count,flow.avrg_inter_arrival_time(),flow.kolmogorov(),flow.shannon()))
 		with open("./payload/"+str(i)+'.txt','w+')as ff:
-			# ff.write(str(_export_object(flow.payload)))
 			ff.write(hexdump(flow.payload,dump=True))
 		f.write(str(i)+","+tmp+"\n")
 
