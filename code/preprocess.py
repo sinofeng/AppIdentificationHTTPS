@@ -27,7 +27,7 @@ for filename in filenames:
             for line in lines:
                 ss='{:g<1024}'.format(line.strip('\n')[0:1024])
                 # 字符转换为数字
-                newline=[ord(s)-87 if s in "abcdefg" else ord(s)-48 for s in ss]
+                newline=[ord(s)-55 if s in "ABCDEF" else ord(s)-48 for s in ss]
                 # 将应用标签表示为数字标签
                 newfile.write(str(newline).strip('[]')+','+str(filename_label[filename])+"\n")
 
