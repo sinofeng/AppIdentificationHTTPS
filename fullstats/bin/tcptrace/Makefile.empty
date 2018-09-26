@@ -1,4 +1,0 @@
-default: 
-	@echo 
-	@echo "Please run ./configure first"
-	@echo 
