@@ -4,7 +4,7 @@ import lightgbm as lgb
 from sklearn.metrics import f1_score
 import numpy as np
 import input_w
-
+from result import figures
 # 自定义F1评价函数
 def f1_score_vali(preds, data_vali):
     labels = data_vali.get_label()
@@ -30,3 +30,10 @@ train_data = lgb.Dataset(train_data, label=train_labels)
 validation_data = lgb.Dataset(eval_data, label=eval_labels)
 
 clf=lgb.train(params,train_data,num_boost_round=100000, valid_sets=[validation_data],early_stopping_rounds=50,feval=f1_score_vali,verbose_eval=1)
+
+labels=["aiqiyi","shoujibaidu","cloudmusic"]
+y_pred=clf.predict(eval_data)
+y_pred=[np.argmax(i) for i in y_pred]
+eval_labels=[i for i in eval_labels]
+
+figures.plot_confusion_matrix(eval_labels,y_pred,labels,'../outcome/lgb_confusion_matrix.png')

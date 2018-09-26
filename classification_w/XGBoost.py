@@ -2,8 +2,8 @@
 #coding=utf-8
 import xgboost as xgb
 from xgboost import XGBClassifier
-
 import input_w
+from result import figures
 params={
     'max_depth':12,
     'learning_rate':0.05,
