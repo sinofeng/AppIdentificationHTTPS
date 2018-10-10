@@ -134,11 +134,11 @@ def deep(df_train, df_test, deep_cols, cont_cols, target, model_type, method):
 
     y_train = train.pop(target)
     y_train = np.array(y_train.values).reshape(-1,1)
-    X_train = np.array(train[deep_cols])/16
+    X_train = np.array(train[deep_cols])/256
 
     y_test = test.pop(target)
     y_test = np.array(y_test.values).reshape(-1,1)
-    X_test = np.array(test[deep_cols])/16
+    X_test = np.array(test[deep_cols])/256
 
 
     if method == 'multiclass':
