@@ -3,7 +3,7 @@
 import os
 payload2="./payload2/"
 filenames=os.listdir(payload2)
-softwares=["aiqiyi","cloudmusic","shoujibaidu"]
+softwares=["aiqiyi","cloudmusic","shoujibaidu","guotaijunan","weibo","xiecheng"]
 filenames=[[tmp for tmp in filenames if tmp.find(software)>-1] for software in softwares]
 print(filenames)
 

@@ -27,7 +27,7 @@ class CNN():
         net = tf.layers.dense(net, 256, activation=tf.nn.relu)
         net = tf.layers.dense(net, 256, activation=tf.nn.relu)
 
-        self.output = tf.layers.dense(net, 3, activation=None)
+        self.output = tf.layers.dense(net, 6, activation=None)
 
         self.prediction = tf.argmax(self.output, axis=-1)
 

@@ -5,9 +5,6 @@ from sklearn.model_selection import cross_val_score
 import pandas as pd
 import numpy as np
 
-
-
-
 params = {
     'epoch': 100,
     'batch_size': 32

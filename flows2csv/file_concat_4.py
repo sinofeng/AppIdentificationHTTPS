@@ -18,9 +18,9 @@ payload.to_csv('payload.csv',index=False)
 #del output
 del payload
 #end
-#start:拼接文件
+#start:拼接文件,分别利用文件的名称给数据添加标签
 names=os.listdir(payload3)
-softwares={"Android_aiqiyi":0,"Android_cloudmusic":1,"Android_shoujibaidu":2}
+softwares={"Android_aiqiyi":0,"Android_cloudmusic":1,"Android_shoujibaidu":2,"Android_guotaijunan":3,"Android_weibo":4,"Android_xiecheng":5}
 for name in names:
     # df1=pd.read_csv(output_folder_path+name)
     # df1['label']=softwares[name[8:-20]]

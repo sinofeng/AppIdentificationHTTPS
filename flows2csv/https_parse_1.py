@@ -41,7 +41,7 @@ def proto_name(sport,dport,use_dpi=False,payload=None):
     return "unknown"
 
 def main(pcap_file):
-    packets=rdpcap("./raw_pcap/"+pcap_file)
+    packets=rdpcap("./raw_pcap/data2/"+pcap_file)
     packets = [ pkt for pkt in packets if IP in pkt for p in pkt if TCP in p ]
     #here we are sure ALL PACKETS ARE TCP
     for pkt in packets:
@@ -57,14 +57,14 @@ def main(pcap_file):
 
     print (','.join(attrs))
 
-    with open('./output/'+pcap_file+'.csv','w+')as f:
+    with open('./output/'+pcap_file[:-8]+'.csv','w+')as f:
         f.write('id,'+','.join(attrs)+'\n')
         for (flow,i) in zip(flows.values(),range(len(flows))):
             if flow.pkt_count>=20:
                 tmp=("%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s"%(proto_name(flow.sport,flow.dport),flow.src,flow.sport,flow.dst,flow.dport,flow.proto,flow.push_flag_ratio(),flow.avrg_len(),flow.avrg_payload_len(),flow.pkt_count,flow.avrg_inter_arrival_time(),flow.kolmogorov(),flow.shannon()))
                 with open("./payload/"+pcap_file+"_"+str(i)+'.txt','w+')as ff:
                     ff.write(hexdump(flow.payload,dump=True))
-                f.write(str(i)+","+tmp+"\n")
+                f.write(pcap_file[:-5]+"_"+str(i)+","+tmp+"\n")
 
     names=os.listdir("./payload")
     for name in names:
@@ -76,6 +76,6 @@ def main(pcap_file):
                 ff.write(line[6:38]+"\n")
 
 if __name__ == '__main__':
-    pcap_files=os.listdir('./raw_pcap')
+    pcap_files=os.listdir('./raw_pcap/data2')
     for pcap_file in pcap_files:
         main(pcap_file)
