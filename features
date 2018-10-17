@@ -1,0 +1,54 @@
+# Forward packets
+# Forward total Bytes
+Min forward inter arrival time difference
+Max forward inter arrival time difference
+Mean forward inter arrival time difference
+STD forward inter arrival time difference
+Mean forward packets
+STD forward packets
+# Backward packets
+# Backward total Bytes
+Min backward inter arrival time difference
+Max backward inter arrival time difference
+Mean backward inter arrival time difference
+STD backward inter arrival time difference
+Mean backward packets
+STD backward packets
+Mean forward TTL value
+Minimum forward packet
+Minimum backward packet
+Maximum forward packet
+Maximum backward packet
+# Total packets
+Minimum packet size
+Maximum packet size
+Mean packet size
+Packet size variance
+
+TCP initial window size
+TCP window scaling factor
+# SSL compression methods
+# SSL extension count
+# SSL chiper methods
+SSL session ID len
+Forward peak MAX throughput
+Mean throughput of backward peaks
+Max throughput of backward peaks
+Backward min peak throughput
+Backward STD peak throughput
+Forward number of bursts
+Backward number of bursts
+Forward min peak throughput
+Mean throughput of forward peaks
+Forward STD peak throughput
+Mean backward peak inter arrival time diff
+Minimum backward peak inter arrival time diff
+Maximum backward peak inter arrival time diff
+STD backward peak inter arrival time diff
+Mean forward peak inter arrival time diff
+Minimum forward peak inter arrival time diff
+Maximum forward peak inter arrival time diff
+STD forward peak inter arrival time diff
+# Keep alive packets
+TCP Maxiumu Segment Size
+Forward SSL Version

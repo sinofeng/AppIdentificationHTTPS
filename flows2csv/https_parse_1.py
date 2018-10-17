@@ -61,6 +61,7 @@ def main(pcap_file):
         f.write('id,'+','.join(attrs)+'\n')
         for (flow,i) in zip(flows.values(),range(len(flows))):
             if flow.pkt_count>=20:
+
                 tmp=("%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s"%(proto_name(flow.sport,flow.dport),flow.src,flow.sport,flow.dst,flow.dport,flow.proto,flow.push_flag_ratio(),flow.avrg_len(),flow.avrg_payload_len(),flow.pkt_count,flow.avrg_inter_arrival_time(),flow.kolmogorov(),flow.shannon()))
                 with open("./payload/"+pcap_file+"_"+str(i)+'.txt','w+')as ff:
                     ff.write(hexdump(flow.payload,dump=True))
