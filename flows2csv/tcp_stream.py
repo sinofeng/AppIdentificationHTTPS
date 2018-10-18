@@ -24,12 +24,31 @@ def cipher(pkt):
 			pass
 def window(pkt):
 	return pkt["TCP"].window
-def server_hello_session_id_len(pkt):
-	if str(pkt.sprintf).find("TLSServerHello")>-1:
+def session_id_len(pkt):
+	fields=["TLS Client Hello","TLS Server Hello"]
+	for field in fields:
 		try:
-			return pkt["TLS Server Hello"].session_id_length
+			return pkt[field].session_id_length
 		except:
 			pass
+	return None
+def client_extensions_length(pkt):
+	if str(pkt.sprintf).find("TLSClientHello")>-1:
+		try:
+			return pkt["TLS Client Hello"].extensions_length
+		except:
+			pass
+def server_extensions_length(pkt):
+	if str(pkt.sprintf).find("TLSServerHello")>-1:
+		try:
+			return pkt["TLS Server Hello"].extensions_length
+		except:
+			pass
+def session_ticket_lifetime(pkt):
+	if str(pkt.sprintf).find("TLSSessionTicket")>-1:
+		return pkt["TLS Session Ticket"].lifetime
+
+
 class TCPStream:
 	def __init__(self,pkt):
 		self.src = pkt.src 
@@ -50,7 +69,12 @@ class TCPStream:
 		self.cipher_suites=[ciphers(pkt)]
 		self.cipher_suite=[cipher(pkt)]
 		self.tcp_window=[window(pkt)]
-		self.server_hello_session_id_length=[server_hello_session_id_len(pkt)]
+		self.session_id_length=[session_id_len(pkt)]
+		self.ip_ttl=[pkt["IP"].ttl]
+		self.tls_session_ticket_lifetime=[session_ticket_lifetime(pkt)]
+		self.client_hello_extensions_length=[client_extensions_length(pkt)]
+		self.server_hello_extensions_length=[server_extensions_length(pkt)]
+
 	def unique_flags(self):
 	    seen = set()
 	    for item in self.flags:
@@ -88,6 +112,14 @@ class TCPStream:
 		return min(self.tcp_window)
 	def var_window(self):
 		return np.var(self.tcp_window)
+	def avrg_ip_ttl(self):
+		return mean(self.ip_ttl)
+	def max_ip_ttl(self):
+		return max(self.ip_ttl)
+	def min_ip_ttl(self):
+		return min(self.ip_ttl)
+	def var_ip_ttl(self):
+		return np.var(self.ip_ttl)
 	def push_flag_ratio(self):
 		return len([ f for f in self.flags if 'P' in f ]) / float(len(self.flags))
 
@@ -100,7 +132,6 @@ class TCPStream:
 		self.flags.append(pkt.sprintf("%TCP.flags%"))
 		self.payload += str(pkt["TCP"].payload)
 		self.pkt = pkt
-
 		sni_tmp=sni(pkt)
 		if sni_tmp!=None:
 			self.extension_servername_indication.append(sni_tmp)
@@ -114,9 +145,18 @@ class TCPStream:
 		if cipher_tmp!=None:
 			self.cipher_suite.append(cipher_tmp)
 		self.tcp_window.append(window(pkt))
-		s_session_len=server_hello_session_id_len(pkt)
-		if s_session_len!=None:
-			self.server_hello_session_id_length.append(s_session_len)
-
+		session_len=session_id_len(pkt)
+		if session_len!=None:
+			self.session_id_length.append(session_len)
+		self.ip_ttl.append(pkt["IP"].ttl)
+		session_ticket_lifetime_tmp=session_ticket_lifetime(pkt)
+		if session_ticket_lifetime_tmp!=None:
+			self.tls_session_ticket_lifetime.append(session_ticket_lifetime_tmp)
+		client_extensions_length_tmp=client_extensions_length(pkt)
+		if client_extensions_length_tmp!=None:
+			self.client_hello_extensions_length.append(client_extensions_length_tmp)
+		server_extensions_length_tmp=server_extensions_length(pkt)
+		if server_extensions_length_tmp!=None:
+			self.server_hello_extensions_length.append(server_extensions_length_tmp)
 	def remove(self,pkt):
 		raise Exception('Not Implemented')
