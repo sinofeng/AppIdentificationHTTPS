@@ -284,8 +284,7 @@ this and the following window statistics to be accurate.(client→server)
 | 207 | max IAT b a | Maximum of packet inter-arrival time
 | 208 | var IAT b a | Variance of packet inter-arrival time
 | 209 | Time since last connection | Time since the last connection between these hosts
-| 210 | No. transitions bulk/trans | The number of transitions between transaction mode and bulk transfer mode, where bulk transfer mode is defined as the time when there are more than three
-successive packets in the same direction without any packets carrying data in the other direction
+| 210 | No. transitions bulk/trans | The number of transitions between transaction mode and bulk transfer mode, where bulk transfer mode is defined as the time when there are more than three successive packets in the same direction without any packets carrying data in the other direction
 | 211 | Time spent in bulk | Amount of time spent in bulk transfer mode
 | 212 | Duration | Connection duration
 | 213 | % bulk | Percent of time spent in bulk transfer
