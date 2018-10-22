@@ -48,7 +48,11 @@ def session_ticket_lifetime(pkt):
 	if str(pkt.sprintf).find("TLSSessionTicket")>-1:
 		return pkt["TLS Session Ticket"].lifetime
 
-
+def mode(nums):
+	counts=np.bincount(nums)
+	return np.argmax(counts)
+def statistics(nums):
+	return np.mean(nums),np.max(nums),np.min(nums),np.median(nums),np.var(nums)
 class TCPStream:
 	def __init__(self,pkt):
 		self.src = pkt.src 
@@ -74,6 +78,8 @@ class TCPStream:
 		self.tls_session_ticket_lifetime=[session_ticket_lifetime(pkt)]
 		self.client_hello_extensions_length=[client_extensions_length(pkt)]
 		self.server_hello_extensions_length=[server_extensions_length(pkt)]
+		self.ip_chksum=[pkt["IP"].chksum]
+		self.tcp_options=[pkt["TCP"].options] # 是否存在以及options的数量，可能是强特！
 
 	def unique_flags(self):
 	    seen = set()
@@ -104,6 +110,8 @@ class TCPStream:
 		return max(self.inter_arrival_times)
 	def var_inter_arrival_time(self):
 		return np.var(self.inter_arrival_times)
+	def median_inter_arrival_time(self):
+		return np.median(self.inter_arrival_times)
 	def avrg_window(self):
 		return mean(self.tcp_window)
 	def max_window(self):
@@ -158,5 +166,8 @@ class TCPStream:
 		server_extensions_length_tmp=server_extensions_length(pkt)
 		if server_extensions_length_tmp!=None:
 			self.server_hello_extensions_length.append(server_extensions_length_tmp)
+		self.ip_chksum.append(pkt["IP"].chksum)
+		self.tcp_options.append(pkt["TCP"].options)
+
 	def remove(self,pkt):
 		raise Exception('Not Implemented')
