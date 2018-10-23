@@ -36,7 +36,7 @@ attrs = ['protocol_name',
          'max_len',
          'min_len',
          'std_len',
-         'len_extension_signature_algorithms',
+         #'len_extension_signature_algorithms',
          'len_cipher_suites',
          'avrg_tcp_window',
          'max_tcp_window',
@@ -70,7 +70,7 @@ def proto_name(sport,dport,use_dpi=False,payload=None):
     return "unknown"
 
 def main(pcap_file):
-    packets=rdpcap("./raw_pcap/"+pcap_file)
+    packets=rdpcap("../../data/data1/"+pcap_file)
     packets = [ pkt for pkt in packets if IP in pkt for p in pkt if TCP in p ]
     #here we are sure ALL PACKETS ARE TCP
     for pkt in packets:
@@ -84,12 +84,12 @@ def main(pcap_file):
 
         flows[flow_key] = tcp_stream
 
-    with open('./output/'+pcap_file[:-5]+'.csv','w+')as f:
-        f.write('id,'+','.join(attrs)+'\n')
+    with open('../../data/output/'+pcap_file[8:-16]+'.csv','a')as f:
+        # f.write('id,'+','.join(attrs)+'\n')
         for (flow,i) in zip(flows.values(),range(len(flows))):
             # 只有长度大于20的流才会保留
             if flow.pkt_count>=20:
-                tmp=("%s,%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
+                tmp=("%s,%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
                      %(proto_name(flow.sport,flow.dport),
                        flow.src,
                        flow.sport,
@@ -107,7 +107,7 @@ def main(pcap_file):
                        flow.max_len(),
                        flow.min_len(),
                        flow.std_len(),
-                       len(flow.extension_signature_algorithms),
+                       #len(flow.extension_signature_algorithms),
                        len(flow.cipher_suites),
                        flow.avrg_window(),
                        flow.max_window(),
@@ -118,8 +118,15 @@ def main(pcap_file):
                        flow.max_ip_ttl(),
                        flow.min_ip_ttl()
                        ))
-                f.write(pcap_file[:-5]+"_"+str(i)+","+tmp+"\n")
+                f.write(pcap_file[8:-5]+"_"+str(i)+","+tmp+"\n")
+                print ("packet number:%d"%i)
+        print ("finish pcap_file[8:-5]")
 if __name__ == '__main__':
-    pcap_files=os.listdir('./raw_pcap/')
+    pcap_files=os.listdir('../../data/data1/')
+
+    softwares=set([pcap_file[8:-16] for pcap_file in pcap_files])
+    for software in softwares:
+        with open('../../data/output/'+software+'.csv','w+')as f:
+            f.write('id,'+','.join(attrs)+'\n')
     for pcap_file in pcap_files:
         main(pcap_file)

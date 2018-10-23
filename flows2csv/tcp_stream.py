@@ -10,9 +10,9 @@ import numpy as np
 def sni(pkt):
 	if str(pkt.sprintf).find("server_names")>-1:
 		return str(pkt["TLS Servername"].data)
-def algs(pkt):
-	if str(pkt.sprintf).find("algs")>-1:
-		return pkt["TLS Extension Signature Algorithms"].algs
+# def algs(pkt):
+# 	if str(pkt.sprintf).find("algs")>-1:
+# 		return pkt["TLS Extension Signature Algorithms"].algs
 def ciphers(pkt):
 	if str(pkt.sprintf).find("TLSClientHello")>-1:
 		return pkt["TLS Client Hello"].cipher_suites
@@ -69,7 +69,7 @@ class TCPStream:
 		self.payload = str(pkt["TCP"].payload)
 		self.pkt = pkt
 		self.extension_servername_indication=[sni(pkt)]
-		self.extension_signature_algorithms=[algs(pkt)]
+		# self.extension_signature_algorithms=[algs(pkt)]
 		self.cipher_suites=[ciphers(pkt)]
 		self.cipher_suite=[cipher(pkt)]
 		self.tcp_window=[window(pkt)]
@@ -143,9 +143,9 @@ class TCPStream:
 		sni_tmp=sni(pkt)
 		if sni_tmp!=None:
 			self.extension_servername_indication.append(sni_tmp)
-		algs_tmp=algs(pkt)
-		if algs_tmp!=None:
-			self.extension_signature_algorithms.append(algs_tmp)
+		# algs_tmp=algs(pkt)
+		# if algs_tmp!=None:
+		# 	self.extension_signature_algorithms.append(algs_tmp)
 		ciphers_tmp=ciphers(pkt)
 		if ciphers_tmp!=None:
 			self.cipher_suites.append(ciphers_tmp)
