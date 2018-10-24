@@ -1,5 +1,12 @@
 #/usr/bin/python envi
 #coding=utf-8
+"""
+@author: TianMao
+@contact: tianmao1994@yahoo.com
+@file: lgb.py
+@time: 18-10-24 下午5:05
+@desc: 修改choose选项进行分类别识别
+"""
 import lightgbm as lgb
 from sklearn.metrics import f1_score
 import numpy as np
@@ -7,10 +14,13 @@ import os
 import input_w
 import config
 from result import figures
+
+choose=config.HTTPS_CONFIG["ebook_path"]
+
 # 自定义F1评价函数
 def f1_score_vali(preds, data_vali):
     labels = data_vali.get_label()
-    preds = np.argmax(preds.reshape(17, -1), axis=0)
+    preds = np.argmax(preds.reshape(config.HTTPS_CONFIG["num_class"], -1), axis=0)
     score_vali = f1_score(y_true=labels, y_pred=preds, average='macro')
     return 'f1_score', score_vali, True
 
@@ -33,7 +43,7 @@ validation_data = lgb.Dataset(eval_data, label=eval_labels)
 
 clf=lgb.train(params,train_data,num_boost_round=100000, valid_sets=[validation_data],early_stopping_rounds=500,feval=f1_score_vali,verbose_eval=1)
 
-names=os.listdir(config.HTTPS_CONFIG["processed_data"])
+names=os.listdir(choose)
 labels=[names[i][:-4] for i in range(len(names))]
 
 y_pred=clf.predict(eval_data)

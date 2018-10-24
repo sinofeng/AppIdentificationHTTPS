@@ -7,8 +7,9 @@ from scapy.all import *
 from scapy.all import IP,TCP
 from scapy_ssl_tls.ssl_tls import *
 from tcp_stream import TCPStream
+import config
 import argparse
-
+import os
 # 五元组确定一条流
 def create_forward_flow_key(pkt):
     return "%s:%s->%s:%s:%s"%(pkt.src,pkt.sport,pkt.dst,pkt.dport,pkt.proto)
@@ -70,7 +71,7 @@ def proto_name(sport,dport,use_dpi=False,payload=None):
     return "unknown"
 
 def main(pcap_file):
-    packets=rdpcap("../../data/data1/"+pcap_file)
+    packets=rdpcap(config.HTTPS_CONFIG["pcap_path"]+pcap_file)
     packets = [ pkt for pkt in packets if IP in pkt for p in pkt if TCP in p ]
     #here we are sure ALL PACKETS ARE TCP
     for pkt in packets:
@@ -84,7 +85,7 @@ def main(pcap_file):
 
         flows[flow_key] = tcp_stream
 
-    with open('../../data/output/'+pcap_file[8:-16]+'.csv','a')as f:
+    with open(config.HTTPS_CONFIG["total_path"]+pcap_file[8:-16]+'.csv','a')as f:
         # f.write('id,'+','.join(attrs)+'\n')
         for (flow,i) in zip(flows.values(),range(len(flows))):
             # 只有长度大于20的流才会保留
@@ -122,11 +123,11 @@ def main(pcap_file):
                 print ("packet number:%d"%i)
         print ("finish pcap_file[8:-5]")
 if __name__ == '__main__':
-    pcap_files=os.listdir('../../data/data1/')
+    pcap_files=os.listdir(config.HTTPS_CONFIG["pcap_path"])
 
     softwares=set([pcap_file[8:-16] for pcap_file in pcap_files])
     for software in softwares:
-        with open('../../data/output/'+software+'.csv','w+')as f:
+        with open(config.HTTPS_CONFIG["total_path"]+software+'.csv','w+')as f:
             f.write('id,'+','.join(attrs)+'\n')
     for pcap_file in pcap_files:
         main(pcap_file)

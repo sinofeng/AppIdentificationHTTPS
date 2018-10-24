@@ -1,9 +1,19 @@
-#/usr/bin/env python
-#coding=utf-8
+#!/usr/bin/env python
+#encoding=utf-8
+"""
+@author: TianMao
+@contact: tianmao1994@yahoo.com
+@file: file_concat.py
+@time: 18-10-24 下午5:05
+@desc: 修改choose选项进行分类别识别
+"""
+
 import pandas as pd
 import os
 from sklearn.model_selection import train_test_split
 import config
+
+choose=config.HTTPS_CONFIG["ebook_path"]
 
 output_columns = ['id',
          'protocol_name',
@@ -38,13 +48,13 @@ output_columns = ['id',
 output=pd.DataFrame(columns=output_columns)
 output.to_csv(config.HTTPS_CONFIG["ouput_path"],index=False)
 
-names=os.listdir(config.HTTPS_CONFIG["output_folder"])
+names=os.listdir(choose)
 softwares={names[i][:-4]:i for i in range(len(names))}
 
 for name in names:
-    df1=pd.read_csv(config.HTTPS_CONFIG["output_folder"]+name)
+    df1=pd.read_csv(choose+name)
     df1['label']=softwares[name[:-4]]
-    df1.to_csv('../../data/https_train_eval/output.csv',index=False,header=False,mode='a+')
+    df1.to_csv(config.HTTPS_CONFIG["ouput_path"],index=False,header=False,mode='a+')
     del df1
 
 output=pd.read_csv(config.HTTPS_CONFIG["ouput_path"])

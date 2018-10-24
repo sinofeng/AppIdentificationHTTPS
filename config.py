@@ -8,11 +8,16 @@
 @desc: 配置文件
 """
 HTTPS_CONFIG={
-    "output_folder":"../../data/output/",
-    "ouput_path":"../../data/https_train_eval/output.csv",
-    "train_path":"../../data/https_train_eval/train.csv",
-    "val_path":"../../data/https_train_eval/val.csv",
-    "num_class":17,
-    "processed_data":"../../data/output/",
+    "pcap_path":"../../data/wd_https/raw_pcap/",
+    "total_path":"../../data/wd_https/output/total/",
+    "vedio_path":"../../data/wd_https/output/vedio/",
+    "social_path":"../../data/wd_https/output/social/",
+    "news_path":"../../data/wd_https/output/news/",
+    "music_path":"../../data/wd_https/output/music/",
+    "ebook_path":"../../data/wd_https/output/ebook/",
+    "ouput_path":"../../data/wd_https/https_train_eval/output.csv",
+    "train_path":"../../data/wd_https/https_train_eval/train.csv",
+    "val_path":"../../data/wd_https/https_train_eval/val.csv",
+    "num_class":3,
     "outcome":"../outcome/"
 }
