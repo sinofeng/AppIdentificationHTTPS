@@ -2,13 +2,32 @@
 #coding=utf-8
 import pandas as pd
 import numpy as np
-
+import config
 def inputs():
-    output_train=pd.read_csv('../data/output_train.csv')
-    output_val=pd.read_csv('../data/output_val.csv')
+    output_train=pd.read_csv(config.HTTPS_CONFIG["train_path"])
+    output_val=pd.read_csv(config.HTTPS_CONFIG["val_path"])
     # output_train=pd.read_csv('../data/payload_train.csv')
     # output_val=pd.read_csv('../data/payload_val.csv')
-    common_features=['push_flag_ratio','average_len','average_payload_len','pkt_count','flow_average_inter_arrival_time','kolmogorov','shannon']
+    common_features=['push_flag_ratio',
+                     'average_len',
+                     'average_payload_len',
+                     'pkt_count',
+                     'flow_average_inter_arrival_time',
+                     'kolmogorov',
+                     'shannon',
+                     'max_len',
+                     'min_len',
+                     'std_len',
+                     'len_cipher_suites',
+                     'avrg_tcp_window',
+                     'max_tcp_window',
+                     'min_tcp_window',
+                     'var_tcp_window',
+                     #'session_id_length',
+                     'avrg_ip_ttl',
+                     'max_ip_ttl',
+                     'min_ip_ttl',
+                     ]
 
     train_labels=np.asarray(output_train.pop('label'),dtype=np.int32)
     train_data=np.asarray(output_train[common_features],dtype=np.float32)
