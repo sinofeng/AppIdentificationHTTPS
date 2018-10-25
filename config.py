@@ -18,6 +18,8 @@ HTTPS_CONFIG={
     "ouput_path":"../../data/wd_https/https_train_eval/output.csv",
     "train_path":"../../data/wd_https/https_train_eval/train.csv",
     "val_path":"../../data/wd_https/https_train_eval/val.csv",
-    "num_class":3,
+    "train_data_sni_path":"../../data/wd_https/https_train_eval/train_data_sni.csv",
+    "val_data_sni_path":"../../data/wd_https/https_train_eval/val_data_sni.csv",
+    "num_class":17,
     "outcome":"../outcome/"
 }

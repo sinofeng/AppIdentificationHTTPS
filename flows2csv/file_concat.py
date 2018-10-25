@@ -13,7 +13,7 @@ import os
 from sklearn.model_selection import train_test_split
 import config
 
-choose=config.HTTPS_CONFIG["ebook_path"]
+choose=config.HTTPS_CONFIG["total_path"]
 
 output_columns = ['id',
          'protocol_name',

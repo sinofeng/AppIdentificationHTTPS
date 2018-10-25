@@ -15,7 +15,7 @@ import input_w
 import config
 from result import figures
 
-choose=config.HTTPS_CONFIG["ebook_path"]
+choose=config.HTTPS_CONFIG["total_path"]
 
 # 自定义F1评价函数
 def f1_score_vali(preds, data_vali):
