@@ -9,7 +9,9 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.layers import Input, concatenate, Embedding, Reshape
 from keras.layers import Flatten, merge, Dropout,Activation
-from keras.layers import Convolution2D,MaxPooling2D
+from keras.layers import Conv1D
+from keras.layers import MaxPooling1D
+
 from keras.layers import SimpleRNN
 from keras.layers.normalization import BatchNormalization
 from keras.models import Model
@@ -21,9 +23,10 @@ batch_size=128
 # deep模型卷积参数
 nb_filters=32
 pool_size=(2,2)
-kernel_size=(1,3)
-cnn_input_shape=(1,64,1)
-rnn_input_shape=(1,64,1)
+kernel_size=3
+# CNN处理数值特征，处理过程中将数值归一化;RNN处理类别特征，类别加入了embedding
+cnn_input_shape=(64,1)
+rnn_input_shape=(64,)
 rows,cols=1,64 # packet的数目，不足64的用0补齐为64
 
 def onehot(x):
@@ -67,11 +70,13 @@ def cnn(df_train, df_test, cnn_cols, cont_cols, target, model_type, method):
 
     y_train = train.pop(target)
     y_train = np.array(y_train.values).reshape(-1, 1)
-    X_train = np.array(train[cnn_cols]) / 256
+    X_train = np.array(train[cnn_cols]).reshape((-1,64,1))
+    X_train = X_train/256
 
     y_test = test.pop(target)
     y_test = np.array(y_test.values).reshape(-1, 1)
-    X_test = np.array(test[cnn_cols]) / 256
+    X_test = np.array(test[cnn_cols]).reshape((-1,64,1))
+    X_test = X_test/256
 
     if method == 'multiclass':
         y_train = onehot(y_train)
@@ -131,10 +136,10 @@ def rnn_cnn():
     # CNN： 使用CNN来表示序列特征，处理的是packet的长度序列
     cnn_inp = Input(shape=cnn_input_shape, dtype='float32', name='cnn')
     # 两层卷积操作
-    c = Convolution2D(nb_filters, (kernel_size[0], kernel_size[1]), padding='same', input_shape=cnn_input_shape)(cnn_inp)
+    c = Conv1D(nb_filters, (kernel_size[0], kernel_size[1]), padding='same', input_shape=cnn_input_shape)(cnn_inp)
     c = Activation('relu')(c)
-    c = Convolution2D(nb_filters, (kernel_size[0], kernel_size[1]))(c)
-    c = MaxPooling2D(pool_size=pool_size)(c)
+    c = Conv1D(nb_filters, (kernel_size[0], kernel_size[1]))(c)
+    c = MaxPooling1D()(c)
     c = Dropout(0.25)(c)
     c = Flatten()(c)
     c = BatchNormalization()(c)
@@ -180,10 +185,10 @@ def wide_rnn_cnn():
     # CNN： 使用CNN来表示序列特征，处理的是packet的长度序列
     cnn_inp = Input(shape=cnn_input_shape, dtype='float32', name='cnn')
     # 两层卷积操作
-    c = Convolution2D(nb_filters, (kernel_size[0], kernel_size[1]), padding='same', input_shape=cnn_input_shape)(cnn_inp)
+    c = Conv1D(nb_filters, kernel_size=kernel_size,padding='same',strides=1)(cnn_inp)
     c = Activation('relu')(c)
-    c = Convolution2D(nb_filters, (kernel_size[0], kernel_size[1]))(c)
-    c = MaxPooling2D(pool_size=pool_size)(c)
+    c = Conv1D(nb_filters)(c)
+    c = MaxPooling1D(pool_size=pool_size)(c)
     c = Dropout(0.25)(c)
     c = Flatten()(c)
     c = BatchNormalization()(c)

@@ -6,6 +6,7 @@ from keras.layers import Dense
 from keras.layers import Flatten
 from keras.layers.embeddings import Embedding
 from keras.layers import SimpleRNN
+import numpy as np
 # define documents
 docs = ['Well done!',
 		'Good work',
@@ -45,3 +46,5 @@ model.fit(padded_docs, labels, epochs=50, verbose=0)
 # evaluate the model
 loss, accuracy = model.evaluate(padded_docs, labels, verbose=0)
 print('Accuracy: %f' % (accuracy*100))
+
+print(model.predict(np.asarray([[45,23,34,12]])))
