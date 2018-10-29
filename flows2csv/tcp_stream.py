@@ -53,6 +53,20 @@ def mode(nums):
 	return np.argmax(counts)
 def statistics(nums):
 	return np.mean(nums),np.max(nums),np.min(nums),np.median(nums),np.var(nums)
+
+def getRecordType(pkt):
+	try:
+		recordtype=pkt["TLS Record"].content_type
+	except:
+		try:
+			recordtype=pkt["SSLv2 Record"].content_type
+		except:
+			recordtype=256
+	if 1==0:
+		return 99
+	else:
+		return recordtype
+
 class TCPStream:
 	def __init__(self,pkt):
 		self.src = pkt.src 
@@ -80,6 +94,8 @@ class TCPStream:
 		self.server_hello_extensions_length=[server_extensions_length(pkt)]
 		self.ip_chksum=[pkt["IP"].chksum]
 		self.tcp_options=[pkt["TCP"].options] # 是否存在以及options的数量，可能是强特！
+		self.record_type=[getRecordType(pkt)]
+
 
 	def unique_flags(self):
 	    seen = set()
@@ -168,6 +184,7 @@ class TCPStream:
 			self.server_hello_extensions_length.append(server_extensions_length_tmp)
 		self.ip_chksum.append(pkt["IP"].chksum)
 		self.tcp_options.append(pkt["TCP"].options)
+		self.record_type.append(getRecordType(pkt))
 
 	def remove(self,pkt):
 		raise Exception('Not Implemented')

@@ -40,5 +40,5 @@ def plot_confusion_matrix(y_true, y_pred, labels, save_path,font_size=10):
 
     plot(cm_normalized, title='Normalized confusion matrix')
     # show confusion matrix
-    plt.savefig(save_path, format='png')
+    plt.savefig(save_path+"/confusematrix.png", format='png')
     plt.show()

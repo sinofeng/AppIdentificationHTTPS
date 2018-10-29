@@ -18,20 +18,21 @@ def fit_and_save_result(x_train, y_train, x_test, y_ture, clf, path):
     clf.fit(x_train, y_train)
     t2 = time()
     test_one_hot = label_binarize(y_ture, np.arange(config.HTTPS_CONFIG["num_class"]))
+
     y_score = clf.predict_proba(x_test)
     t3 = time()
     y_pre = clf.predict(x_test)
     t4 = time()
-    conf_arr = confusion_matrix(y_true=y_ture, y_pred=y_pre)
+    # conf_arr = confusion_matrix(y_true=y_ture, y_pred=y_pre)
     accuracy = metrics.accuracy_score(y_true=y_ture, y_pred=y_pre)
     f1 = metrics.f1_score(y_true=y_ture, y_pred=y_pre, average='macro')
     precision = metrics.precision_score(y_true=y_ture, y_pred=y_pre, average='macro')
     recall = metrics.recall_score(y_true=y_ture, y_pred=y_pre, average='macro')
+
     auc = metrics.roc_auc_score(y_true=test_one_hot, y_score=y_score, average='macro')
 
-
     auc_all, f1_all, recall_all, precision_all, acc_all = [], [], [], [], []
-    for label in range(36):
+    for label in range(config.HTTPS_CONFIG["num_class"]):
         def convert(x):
             if x == label:
                 return 1
@@ -90,4 +91,4 @@ def fit_and_save_result(x_train, y_train, x_test, y_ture, clf, path):
         w.write('\n'.join(['%s %s' % (key, str(value)) for key, value in clf.best_params_.items()]))
 
     # 画出混淆矩阵并保存
-    figures.plot_confusion_matrix(conf_arr, alphabet, path)
+    figures.plot_confusion_matrix(y_ture, y_pre,alphabet, path)
