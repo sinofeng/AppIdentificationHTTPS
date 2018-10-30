@@ -18,43 +18,79 @@ from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 def onehot(x):
     return np.array(OneHotEncoder().fit_transform(x).todense())
 
-cnn_train_data=pd.read_csv(config.HTTPS_CONFIG["packet_length_train_path"])
-cnn_val_data=pd.read_csv(config.HTTPS_CONFIG["packet_length_val_path"])
-# print(train_data)
+cnn_x_name=["Seq_%d_y"%i for i in range(128)]
+rnn_x_name=["Seq_%d_x"%i for i in range(128)]
+filtered_train_data=pd.read_csv(config.HTTPS_CONFIG["all_filtered_train_path"])
+filtered_val_data=pd.read_csv(config.HTTPS_CONFIG["all_filtered_val_path"])
 
-rnn_train_data=pd.read_csv(config.HTTPS_CONFIG["record_type_train_path"])
-rnn_val_data=pd.read_csv(config.HTTPS_CONFIG["record_type_val_path"])
-
-
-y_train_cnn=cnn_train_data.pop("label")
-X_train_cnn = cnn_train_data.drop(["id"],axis=1)
+y_train_cnn=filtered_train_data["label"]
+X_train_cnn = filtered_train_data[cnn_x_name]
 y_train_cnn=np.asarray(y_train_cnn).reshape(-1,1)
 y_train_cnn=onehot(y_train_cnn)
 X_train_cnn=np.asarray(X_train_cnn).reshape((-1,128,1))
 
 # print(X_train_rnn)
 
-y_test_cnn=cnn_val_data.pop("label")
-X_test_cnn = cnn_val_data.drop(["id"],axis=1)
+y_test_cnn=filtered_val_data["label"]
+X_test_cnn = filtered_val_data[cnn_x_name]
 y_test_cnn=np.asarray(y_test_cnn).reshape(-1,1)
 y_test_cnn=onehot(y_test_cnn)
 X_test_cnn=np.asarray(X_test_cnn).reshape((-1,128,1))
 
 
 
-y_train_rnn=rnn_train_data.pop("label")
-X_train_rnn = rnn_train_data.drop(["id"],axis=1)
+y_train_rnn=filtered_train_data["label"]
+X_train_rnn = filtered_train_data[rnn_x_name]
 y_train_rnn=np.asarray(y_train_rnn).reshape(-1,1)
 y_train_rnn=onehot(y_train_rnn)
 X_train_rnn=np.asarray(X_train_rnn)
 
 # print(X_train_rnn)
 
-y_test_rnn=rnn_val_data.pop("label")
-X_test_rnn = rnn_val_data.drop(["id"],axis=1)
+y_test_rnn=filtered_val_data["label"]
+X_test_rnn = filtered_val_data[rnn_x_name]
 y_test_rnn=np.asarray(y_test_rnn).reshape(-1,1)
 y_test_rnn=onehot(y_test_rnn)
 X_test_rnn=np.asarray(X_test_rnn)
+
+#
+# cnn_train_data=pd.read_csv(config.HTTPS_CONFIG["packet_length_train_path"])
+# cnn_val_data=pd.read_csv(config.HTTPS_CONFIG["packet_length_val_path"])
+# # print(train_data)
+#
+# rnn_train_data=pd.read_csv(config.HTTPS_CONFIG["record_type_train_path"])
+# rnn_val_data=pd.read_csv(config.HTTPS_CONFIG["record_type_val_path"])
+#
+#
+# y_train_cnn=cnn_train_data.pop("label")
+# X_train_cnn = cnn_train_data.drop(["id"],axis=1)
+# y_train_cnn=np.asarray(y_train_cnn).reshape(-1,1)
+# y_train_cnn=onehot(y_train_cnn)
+# X_train_cnn=np.asarray(X_train_cnn).reshape((-1,128,1))
+#
+# # print(X_train_rnn)
+#
+# y_test_cnn=cnn_val_data.pop("label")
+# X_test_cnn = cnn_val_data.drop(["id"],axis=1)
+# y_test_cnn=np.asarray(y_test_cnn).reshape(-1,1)
+# y_test_cnn=onehot(y_test_cnn)
+# X_test_cnn=np.asarray(X_test_cnn).reshape((-1,128,1))
+#
+#
+#
+# y_train_rnn=rnn_train_data.pop("label")
+# X_train_rnn = rnn_train_data.drop(["id"],axis=1)
+# y_train_rnn=np.asarray(y_train_rnn).reshape(-1,1)
+# y_train_rnn=onehot(y_train_rnn)
+# X_train_rnn=np.asarray(X_train_rnn)
+#
+# # print(X_train_rnn)
+#
+# y_test_rnn=rnn_val_data.pop("label")
+# X_test_rnn = rnn_val_data.drop(["id"],axis=1)
+# y_test_rnn=np.asarray(y_test_rnn).reshape(-1,1)
+# y_test_rnn=onehot(y_test_rnn)
+# X_test_rnn=np.asarray(X_test_rnn)
 
 batch_size=128
 
@@ -77,7 +113,7 @@ r=Dense(32,activation='relu', kernel_regularizer=l1_l2(l1=0.01, l2=0.01))(r)
 cr_inp = concatenate([c, r])
 # wide特征和deep特征拼接，wide特征直接和输出节点相连
 cr = Dense(32,activation='relu')(cr_inp)
-cr_out = Dense(17, activation='softmax', name='cnn_rnn')(cr)
+cr_out = Dense(10, activation='softmax', name='cnn_rnn')(cr)
 
 # 模型网络的入口和出口
 cr = Model(inputs=[cnn_inp, rnn_inp], outputs=cr_out)
