@@ -62,10 +62,10 @@ softwares={names[i][:-4]:i for i in range(len(names))}
 
 for name in names:
     # 合并统计特征
-    # df1=pd.read_csv(choose+name)
-    # df1['label']=softwares[name[:-4]]
-    # df1.to_csv(config.HTTPS_CONFIG["ouput_path"],index=False,header=False,mode='a+')
-    # del df1
+    df1=pd.read_csv(choose+name)
+    df1['label']=softwares[name[:-4]]
+    df1.to_csv(config.HTTPS_CONFIG["ouput_path"],index=False,header=False,mode='a+')
+    del df1
     # 合并 Record Type
 
     df2=pd.read_csv(config.HTTPS_CONFIG["record_type_total"]+name[:-4]+"_record_type.csv").fillna(256)
@@ -79,22 +79,32 @@ for name in names:
     df3.to_csv(config.HTTPS_CONFIG["packet_length_output_path"],index=False,header=False,mode='a+')
     del df3
 
-# output=pd.read_csv(config.HTTPS_CONFIG["ouput_path"])
-# train_index,val_index=train_test_split(range(output.__len__()),test_size=0.2,shuffle=True)
-#
-# output_train,output_val=output.iloc[train_index],output.iloc[val_index]
-# output_train.to_csv(config.HTTPS_CONFIG["train_path"],index=False)
-# output_val.to_csv(config.HTTPS_CONFIG["val_path"],index=False)
-
-
+output=pd.read_csv(config.HTTPS_CONFIG["ouput_path"])
 record_type=pd.read_csv(config.HTTPS_CONFIG["record_type_output_path"])
-train_index,val_index=train_test_split(range(record_type.__len__()),test_size=0.2,shuffle=True)
+packet_length=pd.read_csv(config.HTTPS_CONFIG["packet_length_output_path"])
+
+train_index,val_index=train_test_split(range(output.__len__()),test_size=0.2,shuffle=True)
+
+output_train,output_val=output.iloc[train_index],output.iloc[val_index]
+output_train.to_csv(config.HTTPS_CONFIG["train_path"],index=False)
+output_val.to_csv(config.HTTPS_CONFIG["val_path"],index=False)
+
 
 record_type_train,record_type_val=record_type.iloc[train_index],record_type.iloc[val_index]
 record_type_train.to_csv(config.HTTPS_CONFIG["record_type_train_path"],index=False)
 record_type_val.to_csv(config.HTTPS_CONFIG["record_type_val_path"],index=False)
 
-packet_length=pd.read_csv(config.HTTPS_CONFIG["packet_length_output_path"])
+
 packet_length_train,packet_length_val=packet_length.iloc[train_index],packet_length.iloc[val_index]
 packet_length_train.to_csv(config.HTTPS_CONFIG["packet_length_train_path"],index=False)
 packet_length_val.to_csv(config.HTTPS_CONFIG["packet_length_val_path"],index=False)
+
+record_type=record_type.drop(["label"],axis=1)
+packet_length=packet_length.drop(["label"],axis=1)
+tmp=pd.merge(record_type,packet_length,on=["id"])
+all=pd.concat(output,tmp,on=["id"])
+all_train_index,all_val_index=train_test_split(range(output.__len__()),test_size=0.2,shuffle=True)
+
+all_train,all_val=all.iloc[train_index],all.iloc[val_index]
+all_train.to_csv(config.HTTPS_CONFIG["all_train_path"],index=False)
+all_val.to_csv(config.HTTPS_CONFIG["all_val_path"],index=False)

@@ -1,5 +1,12 @@
 #!/usr/bin/env python
-#coding=utf-8
+#encoding=utf-8
+"""
+@author: TianMao
+@contact: tianmao1994@yahoo.com
+@file: sniFilter.py
+@time: 18-10-29 下午7:50
+@desc: 使用多线程来解包，每一种软件处理开启一个线程
+"""
 import sys
 import hashlib
 from hashlib import md5
@@ -10,6 +17,7 @@ from tcp_stream import TCPStream
 import config
 import argparse
 import os
+import threading
 # 五元组确定一条流
 def create_forward_flow_key(pkt):
     return "%s:%s->%s:%s:%s"%(pkt.src,pkt.sport,pkt.dst,pkt.dport,pkt.proto)
@@ -76,7 +84,7 @@ def padArray(tmp,num):
     else:
         return tmp+[num]*(128-len(tmp))
 
-def main(pcap_file):
+def parse(pcap_file):
     packets=rdpcap(config.HTTPS_CONFIG["pcap_path"]+pcap_file)
     packets = [ pkt for pkt in packets if IP in pkt for p in pkt if TCP in p ]
     #here we are sure ALL PACKETS ARE TCP
@@ -91,43 +99,43 @@ def main(pcap_file):
 
         flows[flow_key] = tcp_stream
 
-    # with open(config.HTTPS_CONFIG["total_path"]+pcap_file[8:-16]+'.csv','a')as f:
-    #     # f.write('id,'+','.join(attrs)+'\n')
-    #     for (flow,i) in zip(flows.values(),range(len(flows))):
-    #         # 只有长度大于20的流才会保留
-    #         if flow.pkt_count>=20:
-    #             tmp=("%s,%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
-    #                  %(proto_name(flow.sport,flow.dport),
-    #                    flow.src,
-    #                    flow.sport,
-    #                    flow.dst,
-    #                    flow.dport,
-    #                    flow.proto,
-    #                    str(set(flow.extension_servername_indication)).strip("set([])").replace('.','').replace(',','').replace("'",""),
-    #                    flow.push_flag_ratio(),
-    #                    flow.avrg_len(),
-    #                    flow.avrg_payload_len(),
-    #                    flow.pkt_count,
-    #                    flow.avrg_inter_arrival_time(),
-    #                    flow.kolmogorov(),
-    #                    flow.shannon(),
-    #                    flow.max_len(),
-    #                    flow.min_len(),
-    #                    flow.std_len(),
-    #                    #len(flow.extension_signature_algorithms),
-    #                    len(flow.cipher_suites),
-    #                    flow.avrg_window(),
-    #                    flow.max_window(),
-    #                    flow.min_window(),
-    #                    flow.var_window(),
-    #                    max(flow.session_id_length),
-    #                    flow.avrg_ip_ttl(),
-    #                    flow.max_ip_ttl(),
-    #                    flow.min_ip_ttl()
-    #                    ))
-    #             f.write(pcap_file[8:-5]+"_"+str(i)+","+tmp+"\n")
-    #             print ("packet number:%d"%i)
-    #     print ("finish pcap_file[8:-5]")
+    with open(config.HTTPS_CONFIG["total_path"]+pcap_file[8:-16]+'.csv','a')as f:
+        # f.write('id,'+','.join(attrs)+'\n')
+        for (flow,i) in zip(flows.values(),range(len(flows))):
+            # 只有长度大于20的流才会保留
+            if flow.pkt_count>=20:
+                tmp=("%s,%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
+                     %(proto_name(flow.sport,flow.dport),
+                       flow.src,
+                       flow.sport,
+                       flow.dst,
+                       flow.dport,
+                       flow.proto,
+                       str(set(flow.extension_servername_indication)).strip("set([])"),
+                       flow.push_flag_ratio(),
+                       flow.avrg_len(),
+                       flow.avrg_payload_len(),
+                       flow.pkt_count,
+                       flow.avrg_inter_arrival_time(),
+                       flow.kolmogorov(),
+                       flow.shannon(),
+                       flow.max_len(),
+                       flow.min_len(),
+                       flow.std_len(),
+                       #len(flow.extension_signature_algorithms),
+                       len(flow.cipher_suites),
+                       flow.avrg_window(),
+                       flow.max_window(),
+                       flow.min_window(),
+                       flow.var_window(),
+                       max(flow.session_id_length),
+                       flow.avrg_ip_ttl(),
+                       flow.max_ip_ttl(),
+                       flow.min_ip_ttl()
+                       ))
+                f.write(pcap_file[8:-5]+"_"+str(i)+","+tmp+"\n")
+                print ("packet number:%d"%i)
+        print ("finish pcap_file[8:-5]")
 
     with open(config.HTTPS_CONFIG["record_type_total"]+pcap_file[8:-16]+'_record_type.csv','a')as f:
         for (flow,i) in zip(flows.values(),range(len(flows))):
@@ -143,19 +151,31 @@ def main(pcap_file):
                 tmp=padArray(flow.length,0)
                 tmp=str(tmp).strip('[]')
                 f.write(pcap_file[8:-5]+"_"+str(i)+","+tmp+"\n")
+def run(pcaps):
+    for p in pcaps:
+        parse(p)
 
 if __name__ == '__main__':
     pcap_files=os.listdir(config.HTTPS_CONFIG["pcap_path"])
-    record_type_names=["id"]+["Seq_"+str(i) for i in range(128)]+['label']
-    packet_length_names=["id"]+["Seq_"+str(i) for i in range(128)]+['label']
+
+    record_type_names=["id"]+["r_"+str(i) for i in range(128)]+['label']
+    packet_length_names=["id"]+["c_"+str(i) for i in range(128)]+['label']
     softwares=set([pcap_file[8:-16] for pcap_file in pcap_files])
+
     for software in softwares:
         with open(config.HTTPS_CONFIG["total_path"]+software+'.csv','w+')as f:
             f.write('id,'+','.join(attrs)+'\n')
         with open(config.HTTPS_CONFIG["record_type_total"]+software+'_record_type.csv','w+')as f:
             f.write(','.join(record_type_names)+'\n')
         with open(config.HTTPS_CONFIG["packet_length_total"]+software+'_packet_length.csv','w+')as f:
-            f.write(','.join(packet_length_names+'\n'))
+            f.write(','.join(packet_length_names)+'\n')
+    threads=[]
 
-    for pcap_file in pcap_files:
-        main(pcap_file)
+    for software in softwares:
+        all_pcap=[i for i in pcap_files if i.find(software)>-1]
+        t=threading.Thread(target=run,args=(all_pcap,))
+        print ("start:%s"%software)
+        t.start()
+        threads.append(t)
+    for k in threads:
+        k.join()
