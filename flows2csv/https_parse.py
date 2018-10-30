@@ -111,7 +111,7 @@ def parse(pcap_file):
                        flow.dst,
                        flow.dport,
                        flow.proto,
-                       str(set(flow.extension_servername_indication)).strip("set([])"),
+                       str(set(flow.extension_servername_indication)).strip("set([])").strip(","),
                        flow.push_flag_ratio(),
                        flow.avrg_len(),
                        flow.avrg_payload_len(),

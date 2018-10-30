@@ -24,6 +24,8 @@ HTTPS_CONFIG={
 
     "all_train_path":"../../data/wd_https/https_train_eval/all_train.csv",
     "all_val_path":"../../data/wd_https/https_train_eval/all_val.csv",
+    "all_filtered_train_path":"../../data/wd_https/https_train_eval/all_filtered_train.csv",
+    "all_filtered_val_path":"../../data/wd_https/https_train_eval/all_filtered_val.csv",
     "record_type_total":"../../data/wd_https/record_type/total/",
     "record_type_output_path":"../../data/wd_https/https_train_eval/record_type.csv",
     "record_type_train_path":"../../data/wd_https/https_train_eval/record_type_train.csv",
@@ -36,8 +38,6 @@ HTTPS_CONFIG={
 
     "train_data_sni_path":"../../data/wd_https/https_train_eval/train_data_sni.csv",
     "val_data_sni_path":"../../data/wd_https/https_train_eval/val_data_sni.csv",
-    "combined_data":"../../data/wd_https/https_train_eval/combined_data.csv",
-    "filtered_data":"../../data/wd_https/https_train_eval/filtered_data.csv",
     "num_class":3,
     "outcome":"../outcome/",
     "result":"../result/"

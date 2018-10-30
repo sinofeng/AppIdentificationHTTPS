@@ -102,7 +102,7 @@ packet_length_val.to_csv(config.HTTPS_CONFIG["packet_length_val_path"],index=Fal
 record_type=record_type.drop(["label"],axis=1)
 packet_length=packet_length.drop(["label"],axis=1)
 tmp=pd.merge(record_type,packet_length,on=["id"])
-all=pd.concat(output,tmp,on=["id"])
+all=pd.merge(output,tmp,on=["id"])
 all_train_index,all_val_index=train_test_split(range(output.__len__()),test_size=0.2,shuffle=True)
 
 all_train,all_val=all.iloc[train_index],all.iloc[val_index]
