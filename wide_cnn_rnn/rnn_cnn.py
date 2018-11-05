@@ -6,6 +6,7 @@ from keras.layers import Activation
 from keras.layers import Flatten
 from keras.layers import BatchNormalization
 from keras.layers import Dense
+from keras.layers import Multiply
 from keras.regularizers import l2, l1_l2
 import pandas as pd
 import numpy as np
@@ -15,6 +16,7 @@ from keras.layers import SimpleRNN
 from keras.optimizers import Adam
 import config
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
+
 def onehot(x):
     return np.array(OneHotEncoder().fit_transform(x).todense())
 
@@ -111,6 +113,9 @@ r=SimpleRNN(128)(r)
 r=Dense(32,activation='relu', kernel_regularizer=l1_l2(l1=0.01, l2=0.01))(r)
 
 cr_inp = concatenate([c, r])
+# 加入注意力机制
+attention_probs=Dense(64,activation='softmax',name="attention_probs")(cr_inp)
+cr_inp=Multiply()([cr_inp,attention_probs])
 # wide特征和deep特征拼接，wide特征直接和输出节点相连
 cr = Dense(32,activation='relu')(cr_inp)
 cr_out = Dense(10, activation='softmax', name='cnn_rnn')(cr)
