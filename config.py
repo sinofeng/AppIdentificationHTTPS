@@ -8,7 +8,7 @@
 @desc: 配置文件
 """
 HTTPS_CONFIG={
-    "pcap_path":"../../data/wd_https/raw_pcap/",
+    "pcap_path":"../../data/wd_https/raw_pcap/UNB/",
     "total_path":"../../data/wd_https/output/total/",
     "vedio_path":"../../data/wd_https/output/vedio/",
     "social_path":"../../data/wd_https/output/social/",
@@ -40,5 +40,6 @@ HTTPS_CONFIG={
     "val_data_sni_path":"../../data/wd_https/https_train_eval/val_data_sni.csv",
     "num_class":3,
     "outcome":"../outcome/",
-    "result":"../result/"
+    "result":"../result/",
+    "models":"../models/"
 }

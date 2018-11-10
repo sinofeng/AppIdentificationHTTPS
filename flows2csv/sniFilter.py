@@ -22,7 +22,7 @@ SNI_PATTERNS={
     "nanfangzhoumo":[],
     "qqyuedu":[],
     "zhangyue":["zhangyue","book"],
-    "zhihu":[],
+    "zhihu":["zhi"],
     "qq":["qq"],
     "weixin":[],
     "qqmusic":["qq"],

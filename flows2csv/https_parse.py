@@ -99,7 +99,7 @@ def parse(pcap_file):
 
         flows[flow_key] = tcp_stream
 
-    with open(config.HTTPS_CONFIG["total_path"]+pcap_file[8:-16]+'.csv','a')as f:
+    with open(config.HTTPS_CONFIG["total_path"]+pcap_file[:-8]+'.csv','a')as f:
         # f.write('id,'+','.join(attrs)+'\n')
         for (flow,i) in zip(flows.values(),range(len(flows))):
             # 只有长度大于20的流才会保留
@@ -133,24 +133,24 @@ def parse(pcap_file):
                        flow.max_ip_ttl(),
                        flow.min_ip_ttl()
                        ))
-                f.write(pcap_file[8:-5]+"_"+str(i)+","+tmp+"\n")
+                f.write(pcap_file[:-5]+"_"+str(i)+","+tmp+"\n")
                 print ("packet number:%d"%i)
-        print ("finish pcap_file[8:-5]")
+        print ("finish %s"%pcap_file)
 
-    with open(config.HTTPS_CONFIG["record_type_total"]+pcap_file[8:-16]+'_record_type.csv','a')as f:
+    with open(config.HTTPS_CONFIG["record_type_total"]+pcap_file[:-8]+'_record_type.csv','a')as f:
         for (flow,i) in zip(flows.values(),range(len(flows))):
             # 只有长度大于20的流才会保留
             if flow.pkt_count>=20:
                 tmp=padArray(flow.record_type,256)
                 tmp=str(tmp).strip('[]')
-                f.write(pcap_file[8:-5]+"_"+str(i)+","+tmp+"\n")
-    with open(config.HTTPS_CONFIG["packet_length_total"]+pcap_file[8:-16]+'_packet_length.csv','a')as f:
+                f.write(pcap_file[:-5]+"_"+str(i)+","+tmp+"\n")
+    with open(config.HTTPS_CONFIG["packet_length_total"]+pcap_file[:-8]+'_packet_length.csv','a')as f:
         for (flow,i) in zip(flows.values(),range(len(flows))):
             # 只有长度大于20的流才会保留
             if flow.pkt_count>=20:
                 tmp=padArray(flow.length,0)
                 tmp=str(tmp).strip('[]')
-                f.write(pcap_file[8:-5]+"_"+str(i)+","+tmp+"\n")
+                f.write(pcap_file[:-5]+"_"+str(i)+","+tmp+"\n")
 def run(pcaps):
     for p in pcaps:
         parse(p)
@@ -160,7 +160,7 @@ if __name__ == '__main__':
 
     record_type_names=["id"]+["r_"+str(i) for i in range(128)]+['label']
     packet_length_names=["id"]+["c_"+str(i) for i in range(128)]+['label']
-    softwares=set([pcap_file[8:-16] for pcap_file in pcap_files])
+    softwares=set([pcap_file[:-8] for pcap_file in pcap_files])
 
     for software in softwares:
         with open(config.HTTPS_CONFIG["total_path"]+software+'.csv','w+')as f:
