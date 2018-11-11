@@ -22,7 +22,7 @@ output_columns = ['id',
          'dst',
          'dport',
          'proto',
-         'extension_servername_indication',
+         # 'extension_servername_indication',
          'push_flag_ratio',
          'average_len',
          'average_payload_len',
@@ -104,7 +104,10 @@ packet_length=packet_length.drop(["label"],axis=1)
 tmp=pd.merge(record_type,packet_length,on=["id"])
 all=pd.merge(output,tmp,on=["id"])
 all_train_index,all_val_index=train_test_split(range(output.__len__()),test_size=0.2,shuffle=True)
-
+import numpy as np
+print(np.sort(all_train_index))
+print(np.sort(all_val_index))
+print(all.shape)
 all_train,all_val=all.iloc[train_index],all.iloc[val_index]
 all_train.to_csv(config.HTTPS_CONFIG["all_train_path"],index=False)
 all_val.to_csv(config.HTTPS_CONFIG["all_val_path"],index=False)

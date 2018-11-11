@@ -17,6 +17,7 @@ HTTPS_CONFIG={
     "ebook_path":"../../data/wd_https/output/ebook/",
     "record_type_path":"../../data/wd_https/record_type/total/",
     "packet_lenth_path":"../../data/wd_https/packet_length/total/",
+
     "choose":"total_path",
     "ouput_path":"../../data/wd_https/https_train_eval/output.csv",
     "train_path":"../../data/wd_https/https_train_eval/train.csv",
@@ -30,7 +31,7 @@ HTTPS_CONFIG={
     "record_type_output_path":"../../data/wd_https/https_train_eval/record_type.csv",
     "record_type_train_path":"../../data/wd_https/https_train_eval/record_type_train.csv",
     "record_type_val_path":"../../data/wd_https/https_train_eval/record_type_val.csv",
-
+    "time_interval_total":"../../data/wd_https/time_interval/total/",
     "packet_length_total":"../../data/wd_https/packet_length/total/",
     "packet_length_output_path":"../../data/wd_https/https_train_eval/packet_length.csv",
     "packet_length_train_path":"../../data/wd_https/https_train_eval/packet_length_train.csv",
