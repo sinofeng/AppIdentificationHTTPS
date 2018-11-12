@@ -5,7 +5,7 @@
 @contact: tianmao1994@yahoo.com
 @file: lengthOverview2.py
 @time: 18-11-11 下午5:11
-@desc:
+@desc: 绘制长度的OverView
 """
 import pandas as pd
 import numpy as np

@@ -3,11 +3,12 @@
 """
 @author: TianMao
 @contact: tianmao1994@yahoo.com
-@file: sniFilter.py
+@file: https_parse.py
 @time: 18-10-29 下午7:50
 @desc: 使用多线程来解包，每一种软件处理开启一个线程
 """
 import sys
+sys.path.append("/home/tianmao/wd_https/")
 import hashlib
 from hashlib import md5
 from scapy.all import *
@@ -18,7 +19,8 @@ import config
 import argparse
 import os
 import threading
-# 五元组确定一条流
+
+# 流的方向
 def create_forward_flow_key(pkt):
     return "%s:%s->%s:%s:%s"%(pkt.src,pkt.sport,pkt.dst,pkt.dport,pkt.proto)
 def create_reverse_flow_key(pkt):
@@ -58,7 +60,6 @@ attrs = ['protocol_name',
          ]
 
 def lookup_stream(key,reverse_key):
-
     if key in flows.keys():
         return key,flows[key]
     elif reverse_key in flows.keys():
@@ -66,7 +67,12 @@ def lookup_stream(key,reverse_key):
     else:
         return key,None
 
-#HINT: appid https://code.google.com/p/appid/
+def lookup_stream_single(key):
+    if key in flows.keys():
+        return key,flows[key]
+    else:
+        return key,None
+
 def proto_name(sport,dport,use_dpi=False,payload=None):
     if dport == 80 or sport == 80:
         return "http"
@@ -84,6 +90,8 @@ def padArray(tmp,num):
     else:
         return tmp+[num]*(128-len(tmp))
 
+#  问题：如何对流进行重组（序列问题）？
+
 def parse(pcap_file):
     packets=rdpcap(config.HTTPS_CONFIG["pcap_path"]+pcap_file)
     packets = [ pkt for pkt in packets if IP in pkt for p in pkt if TCP in p ]
@@ -91,27 +99,33 @@ def parse(pcap_file):
     for pkt in packets:
         flow_tuple = reverse_flow_tuple = key_to_search = None
         flow_tuple,reverse_flow_tuple = create_flow_keys(pkt[IP])
-        flow_key,tcp_stream = lookup_stream(flow_tuple,reverse_flow_tuple)
+        #混合流
+        # flow_key,tcp_stream = lookup_stream(flow_tuple,reverse_flow_tuple)
+        #单向流
+        flow_key,tcp_stream=lookup_stream_single(flow_tuple)
         if tcp_stream is None:
             tcp_stream = TCPStream(pkt[IP])
         else:
             tcp_stream.add(pkt[IP])
 
         flows[flow_key] = tcp_stream
-
-    with open(config.HTTPS_CONFIG["total_path"]+pcap_file[:-8]+'.csv','a')as f:
+    a=config.HTTPS_CONFIG["total_path"]+pcap_file[:-8]+'.csv'
+    b=config.HTTPS_CONFIG["record_type_total"]+pcap_file[:-8]+'_record_type.csv'
+    c=config.HTTPS_CONFIG["packet_length_total"]+pcap_file[:-8]+'_packet_length.csv'
+    d=config.HTTPS_CONFIG["time_interval_total"]+pcap_file[:-8]+'_time_interval.csv'
+    with open(a,'a')as f1,open(b,'a') as f2,open(c,'a')as f3,open(d,'a')as f4:
         # f.write('id,'+','.join(attrs)+'\n')
         for (flow,i) in zip(flows.values(),range(len(flows))):
             # 只有长度大于20的流才会保留
             if flow.pkt_count>=20:
-                tmp=("%s,%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
+                tmp1=("%s,%s,%s,%s,%s,%s,%s,%.3f,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s"
                      %(proto_name(flow.sport,flow.dport),
                        flow.src,
                        flow.sport,
                        flow.dst,
                        flow.dport,
                        flow.proto,
-                       str(set(flow.extension_servername_indication)).strip("set([])").strip(","),
+                       str(set(flow.extension_servername_indication)).strip("set([])").replace(",",""),
                        flow.push_flag_ratio(),
                        flow.avrg_len(),
                        flow.avrg_payload_len(),
@@ -133,24 +147,22 @@ def parse(pcap_file):
                        flow.max_ip_ttl(),
                        flow.min_ip_ttl()
                        ))
-                f.write(pcap_file[:-5]+"_"+str(i)+","+tmp+"\n")
+                f1.write(pcap_file[:-5]+"_"+str(i)+","+tmp1+"\n")
+
+                tmp2=padArray(flow.record_type,256)
+                tmp2=str(tmp2).strip('[]')
+                f2.write(pcap_file[:-5]+"_"+str(i)+","+tmp2+"\n")
+
+                tmp3=padArray(flow.length,0)
+                tmp3=str(tmp3).strip('[]')
+                f3.write(pcap_file[:-5]+"_"+str(i)+","+tmp3+"\n")
+
+                tmp4=padArray(flow.inter_arrival_times,0)
+                tmp4=str(tmp4).strip('[]')
+                f4.write(pcap_file[:-5]+"_"+str(i)+","+tmp4+"\n")
                 print ("packet number:%d"%i)
         print ("finish %s"%pcap_file)
 
-    with open(config.HTTPS_CONFIG["record_type_total"]+pcap_file[:-8]+'_record_type.csv','a')as f:
-        for (flow,i) in zip(flows.values(),range(len(flows))):
-            # 只有长度大于20的流才会保留
-            if flow.pkt_count>=20:
-                tmp=padArray(flow.record_type,256)
-                tmp=str(tmp).strip('[]')
-                f.write(pcap_file[:-5]+"_"+str(i)+","+tmp+"\n")
-    with open(config.HTTPS_CONFIG["packet_length_total"]+pcap_file[:-8]+'_packet_length.csv','a')as f:
-        for (flow,i) in zip(flows.values(),range(len(flows))):
-            # 只有长度大于20的流才会保留
-            if flow.pkt_count>=20:
-                tmp=padArray(flow.length,0)
-                tmp=str(tmp).strip('[]')
-                f.write(pcap_file[:-5]+"_"+str(i)+","+tmp+"\n")
 def run(pcaps):
     for p in pcaps:
         parse(p)
@@ -160,6 +172,7 @@ if __name__ == '__main__':
 
     record_type_names=["id"]+["r_"+str(i) for i in range(128)]+['label']
     packet_length_names=["id"]+["c_"+str(i) for i in range(128)]+['label']
+    time_interval_names=["id"]+["t_"+str(i) for i in range(128)]+['label']
     softwares=set([pcap_file[:-8] for pcap_file in pcap_files])
 
     for software in softwares:
@@ -169,6 +182,9 @@ if __name__ == '__main__':
             f.write(','.join(record_type_names)+'\n')
         with open(config.HTTPS_CONFIG["packet_length_total"]+software+'_packet_length.csv','w+')as f:
             f.write(','.join(packet_length_names)+'\n')
+        with open(config.HTTPS_CONFIG["time_interval_total"]+software+'_time_interval.csv','w+')as f:
+            f.write(','.join(time_interval_names)+'\n')
+
     threads=[]
 
     for software in softwares:

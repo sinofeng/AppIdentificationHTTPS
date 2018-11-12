@@ -5,7 +5,7 @@
 @contact: tianmao1994@yahoo.com
 @file: timeOverview.py
 @time: 18-11-11 下午1:09
-@desc:
+@desc: 绘制时间间隔的OverView
 """
 import pandas as pd
 import numpy as np
