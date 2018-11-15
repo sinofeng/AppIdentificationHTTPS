@@ -32,15 +32,21 @@ HTTPS_CONFIG={
     "record_type_train_path":"../../data/wd_https/https_train_eval/record_type_train.csv",
     "record_type_val_path":"../../data/wd_https/https_train_eval/record_type_val.csv",
     "time_interval_total":"../../data/wd_https/time_interval/total/",
+    "payload_total":"../../data/wd_https/payload/total/",
     "packet_length_total":"../../data/wd_https/packet_length/total/",
     "packet_length_output_path":"../../data/wd_https/https_train_eval/packet_length.csv",
     "packet_length_train_path":"../../data/wd_https/https_train_eval/packet_length_train.csv",
     "packet_length_val_path":"../../data/wd_https/https_train_eval/packet_length_val.csv",
+    "packet_payload_output_path":"../../data/wd_https/https_train_eval/payload.csv",
+    "packet_payload_train_path":"../../data/wd_https/https_train_eval/packet_payload_train.csv",
+    "packet_payload_val_path":"../../data/wd_https/https_train_eval/packet_payload_val.csv",
 
     "train_data_sni_path":"../../data/wd_https/https_train_eval/train_data_sni.csv",
     "val_data_sni_path":"../../data/wd_https/https_train_eval/val_data_sni.csv",
-    "num_class":3,
+    "num_class":7,
     "outcome":"../outcome/",
     "result":"../result/",
-    "models":"../models/"
+    "models":"../models/",
+    "ubyte":"../../data/wd_https/ubyte/"
+
 }

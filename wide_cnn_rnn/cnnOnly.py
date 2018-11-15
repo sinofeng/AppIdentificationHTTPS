@@ -39,17 +39,16 @@ alphabet=[names[i][:-4] for i in range(len(names))]
 def onehot(x):
     return np.array(OneHotEncoder().fit_transform(x).todense())
 
-cnn_x_name=["Seq_%d_y"%i for i in range(128)]
-rnn_x_name=["Seq_%d_x"%i for i in range(128)]
-filtered_train_data=pd.read_csv(config.HTTPS_CONFIG["all_train_path"])
-filtered_val_data=pd.read_csv(config.HTTPS_CONFIG["all_val_path"])
+cnn_x_name=["p_%d"%i for i in range(1024)]
+filtered_train_data=pd.read_csv(config.HTTPS_CONFIG["packet_payload_train_path"])
+filtered_val_data=pd.read_csv(config.HTTPS_CONFIG["packet_payload_val_path"])
 
 y_train_cnn=filtered_train_data["label"]
 X_train_cnn = filtered_train_data[cnn_x_name]
 # y_train_cnn=np.asarray(y_train_cnn).reshape(-1,1)
 # y_train_cnn=onehot(y_train_cnn)
 y_train_cnn=to_categorical(y_train_cnn)
-X_train_cnn=np.asarray(X_train_cnn).reshape((-1,128,1))
+X_train_cnn=np.asarray(X_train_cnn).reshape((-1,1024,1))
 
 # print(X_train_rnn)
 
@@ -58,16 +57,15 @@ X_test_cnn = filtered_val_data[cnn_x_name]
 # y_test_cnn=np.asarray(y_test_cnn).reshape(-1,1)
 # y_test_cnn=onehot(y_test_cnn)
 y_test_cnn=to_categorical(y_test_cnn)
-X_test_cnn=np.asarray(X_test_cnn).reshape((-1,128,1))
+X_test_cnn=np.asarray(X_test_cnn).reshape((-1,1024,1))
 
 
 
 batch_size=128
 
-nb_filters=32
+nb_filters=128
 kernel_size=3
-
-cnn_input_shape=(128,1)
+cnn_input_shape=(1024,1)
 cnn_inp = Input(shape=cnn_input_shape, dtype='float32', name='cnn')
 # 两层卷积操作
 c = Conv1D(nb_filters, kernel_size=kernel_size,padding='same',strides=1)(cnn_inp)
@@ -76,8 +74,9 @@ c = Conv1D(nb_filters, kernel_size=kernel_size,padding='same',strides=1)(c)
 c = MaxPooling1D()(c)
 c = Flatten()(c)
 
-c = Dense(32, activation='relu', kernel_regularizer=l1_l2(l1=0.01, l2=0.01))(c)
-c = Dense(32, activation='relu', kernel_regularizer=l1_l2(l1=0.01, l2=0.01))(c)
+# c = Dense(512, activation='relu', kernel_regularizer=l1_l2(l1=0.01, l2=0.01))(c)
+c = Dense(256, activation='relu', kernel_regularizer=l1_l2(l1=0.01, l2=0.01))(c)
+c = Dense(128, activation='relu', kernel_regularizer=l1_l2(l1=0.01, l2=0.01))(c)
 
 c_out = Dense(config.HTTPS_CONFIG["num_class"], activation='softmax', name='cnn_rnn')(c)
 

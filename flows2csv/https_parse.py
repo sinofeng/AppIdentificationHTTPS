@@ -84,12 +84,11 @@ def proto_name(sport,dport,use_dpi=False,payload=None):
         return "https"
     return "unknown"
 
-def padArray(tmp,num):
-    if len(tmp)>128:
-        return tmp[:128]
+def padArray(tmp,l,num):
+    if len(tmp)>l:
+        return tmp[:l]
     else:
-        return tmp+[num]*(128-len(tmp))
-
+        return tmp+[num]*(l-len(tmp))
 #  问题：如何对流进行重组（序列问题）？
 
 def parse(pcap_file):
@@ -113,7 +112,9 @@ def parse(pcap_file):
     b=config.HTTPS_CONFIG["record_type_total"]+pcap_file[:-8]+'_record_type.csv'
     c=config.HTTPS_CONFIG["packet_length_total"]+pcap_file[:-8]+'_packet_length.csv'
     d=config.HTTPS_CONFIG["time_interval_total"]+pcap_file[:-8]+'_time_interval.csv'
-    with open(a,'a')as f1,open(b,'a') as f2,open(c,'a')as f3,open(d,'a')as f4:
+    e=config.HTTPS_CONFIG["payload_total"]+pcap_file[:-8]+'_payload.csv'
+
+    with open(a,'a')as f1,open(b,'a') as f2,open(c,'a')as f3,open(d,'a')as f4,open(e,'a')as f5:
         # f.write('id,'+','.join(attrs)+'\n')
         for (flow,i) in zip(flows.values(),range(len(flows))):
             # 只有长度大于20的流才会保留
@@ -149,17 +150,21 @@ def parse(pcap_file):
                        ))
                 f1.write(pcap_file[:-5]+"_"+str(i)+","+tmp1+"\n")
 
-                tmp2=padArray(flow.record_type,256)
+                tmp2=padArray(flow.record_type,64,256)
                 tmp2=str(tmp2).strip('[]')
                 f2.write(pcap_file[:-5]+"_"+str(i)+","+tmp2+"\n")
 
-                tmp3=padArray(flow.length,0)
+                tmp3=padArray(flow.length,64,0)
                 tmp3=str(tmp3).strip('[]')
                 f3.write(pcap_file[:-5]+"_"+str(i)+","+tmp3+"\n")
 
-                tmp4=padArray(flow.inter_arrival_times,0)
+                tmp4=padArray(flow.inter_arrival_times,64,0)
                 tmp4=str(tmp4).strip('[]')
                 f4.write(pcap_file[:-5]+"_"+str(i)+","+tmp4+"\n")
+
+                tmp5=padArray(flow.payload,4096,128)
+                tmp5=str(tmp5).strip('[]')
+                f5.write(pcap_file[:-5]+"_"+str(i)+","+tmp5+"\n")
                 print ("packet number:%d"%i)
         print ("finish %s"%pcap_file)
 
@@ -173,6 +178,7 @@ if __name__ == '__main__':
     record_type_names=["id"]+["r_"+str(i) for i in range(128)]+['label']
     packet_length_names=["id"]+["c_"+str(i) for i in range(128)]+['label']
     time_interval_names=["id"]+["t_"+str(i) for i in range(128)]+['label']
+    payload_names=["id"]+["p_"+str(i) for i in range(4096)]+['label']
     softwares=set([pcap_file[:-8] for pcap_file in pcap_files])
 
     for software in softwares:
@@ -184,6 +190,8 @@ if __name__ == '__main__':
             f.write(','.join(packet_length_names)+'\n')
         with open(config.HTTPS_CONFIG["time_interval_total"]+software+'_time_interval.csv','w+')as f:
             f.write(','.join(time_interval_names)+'\n')
+        with open(config.HTTPS_CONFIG["payload_total"]+software+'_payload.csv','w+')as f:
+            f.write(','.join(payload_names)+'\n')
 
     threads=[]
 

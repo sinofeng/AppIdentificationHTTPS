@@ -48,13 +48,17 @@ output_columns = ['id',
 output=pd.DataFrame(columns=output_columns)
 output.to_csv(config.HTTPS_CONFIG["ouput_path"],index=False)
 
-record_type_names=["id"]+["Seq_"+str(i) for i in range(128)]+['label']
+record_type_names=["id"]+["Seq_"+str(i) for i in range(64)]+['label']
 record_type=pd.DataFrame(columns=record_type_names)
 record_type.to_csv(config.HTTPS_CONFIG["record_type_output_path"],index=False)
 
-packet_length_names=["id"]+["Seq_"+str(i) for i in range(128)]+['label']
+packet_length_names=["id"]+["Seq_"+str(i) for i in range(64)]+['label']
 packet_length=pd.DataFrame(columns=packet_length_names)
 packet_length.to_csv(config.HTTPS_CONFIG["packet_length_output_path"],index=False)
+
+payload_names=["id"]+["p_"+str(i) for i in range(4096)]+['label']
+payload=pd.DataFrame(columns=payload_names)
+payload.to_csv(config.HTTPS_CONFIG["packet_payload_output_path"],index=False)
 
 names=os.listdir(choose)
 softwares={names[i][:-4]:i for i in range(len(names))}
@@ -79,9 +83,15 @@ for name in names:
     df3.to_csv(config.HTTPS_CONFIG["packet_length_output_path"],index=False,header=False,mode='a+')
     del df3
 
+    df5=pd.read_csv(config.HTTPS_CONFIG["payload_total"]+name[:-4]+"_payload.csv").fillna(0)
+    df5['label']=softwares[name[:-4]]
+    df5.to_csv(config.HTTPS_CONFIG["packet_payload_output_path"],index=False,header=False,mode='a+')
+    del df5
+
 output=pd.read_csv(config.HTTPS_CONFIG["ouput_path"])
 record_type=pd.read_csv(config.HTTPS_CONFIG["record_type_output_path"])
 packet_length=pd.read_csv(config.HTTPS_CONFIG["packet_length_output_path"])
+payload=pd.read_csv(config.HTTPS_CONFIG["packet_payload_output_path"])
 
 train_index,val_index=train_test_split(range(output.__len__()),test_size=0.2,shuffle=True)
 
@@ -99,15 +109,20 @@ packet_length_train,packet_length_val=packet_length.iloc[train_index],packet_len
 packet_length_train.to_csv(config.HTTPS_CONFIG["packet_length_train_path"],index=False)
 packet_length_val.to_csv(config.HTTPS_CONFIG["packet_length_val_path"],index=False)
 
+payload_train,payload_val=payload.iloc[train_index],payload.iloc[val_index]
+payload_train.to_csv(config.HTTPS_CONFIG["packet_payload_train_path"],index=False)
+payload_val.to_csv(config.HTTPS_CONFIG["packet_payload_val_path"],index=False)
+
+
+
+
 record_type=record_type.drop(["label"],axis=1)
 packet_length=packet_length.drop(["label"],axis=1)
 tmp=pd.merge(record_type,packet_length,on=["id"])
+
+
 all=pd.merge(output,tmp,on=["id"])
 all_train_index,all_val_index=train_test_split(range(output.__len__()),test_size=0.2,shuffle=True)
-import numpy as np
-print(np.sort(all_train_index))
-print(np.sort(all_val_index))
-print(all.shape)
 all_train,all_val=all.iloc[train_index],all.iloc[val_index]
 all_train.to_csv(config.HTTPS_CONFIG["all_train_path"],index=False)
 all_val.to_csv(config.HTTPS_CONFIG["all_val_path"],index=False)
