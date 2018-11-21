@@ -80,7 +80,8 @@ class TCPStream:
 		self.pkt_count = 1
 		self.len = pkt.len # packet的累加
 		self.length=[pkt.len] # packet单个长度
-		self.payload = str(pkt["TCP"].payload)
+		self.payload =[ord(c) for c in str(pkt["TCP"].payload)][:64]
+		self.payload_=str(pkt["TCP"].payload)
 		self.pkt = pkt
 		self.extension_servername_indication=[sni(pkt)]
 		# self.extension_signature_algorithms=[algs(pkt)]
@@ -113,11 +114,11 @@ class TCPStream:
 	def std_len(self):
 		return np.var(self.length)
 	def kolmogorov(self):
-		return round(kolmogorov(self.payload),4)
+		return round(kolmogorov(self.payload_),4)
 	def shannon(self):
-		return round(shannon(self.payload),4)
+		return round(shannon(self.payload_),4)
 	def avrg_payload_len(self):
-		return len(self.payload)/self.pkt_count
+		return len(self.payload_)/self.pkt_count
 	def avrg_inter_arrival_time(self):
 		return round(mean(self.inter_arrival_times),4)
 	def min_inter_arrival_time(self):
@@ -154,7 +155,7 @@ class TCPStream:
 		self.length.append(pkt.len)
 		self.inter_arrival_times.append(pkt.time - self.time)
 		self.flags.append(pkt.sprintf("%TCP.flags%"))
-		self.payload += str(pkt["TCP"].payload)
+		self.payload += [ord(c) for c in str(pkt["TCP"].payload)][:64]
 		self.pkt = pkt
 		sni_tmp=sni(pkt)
 		if sni_tmp!=None:
