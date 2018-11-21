@@ -37,7 +37,7 @@ model.add(Dense(1))
 model.add(Activation("sigmoid"))
 model.compile(loss="binary_crossentropy", optimizer="adam",metrics=["accuracy"])
 
-
+print(model.summary())
 BATCH_SIZE = 32
 NUM_EPOCHS = 100
 model.fit(X_train_rnn, y_train_rnn,epochs=NUM_EPOCHS,validation_data=(X_test_rnn, y_test_rnn))

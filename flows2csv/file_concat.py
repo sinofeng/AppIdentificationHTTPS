@@ -45,46 +45,46 @@ output_columns = ['id',
          'min_ip_ttl',
          'label'
          ]
-output=pd.DataFrame(columns=output_columns)
-output.to_csv(config.HTTPS_CONFIG["ouput_path"],index=False)
-
-record_type_names=["id"]+["Seq_"+str(i) for i in range(128)]+['label']
-record_type=pd.DataFrame(columns=record_type_names)
-record_type.to_csv(config.HTTPS_CONFIG["record_type_output_path"],index=False)
-
-packet_length_names=["id"]+["Seq_"+str(i) for i in range(128)]+['label']
-packet_length=pd.DataFrame(columns=packet_length_names)
-packet_length.to_csv(config.HTTPS_CONFIG["packet_length_output_path"],index=False)
-
-names=os.listdir(choose)
-softwares={names[i][:-4]:i for i in range(len(names))}
-
-
-for name in names:
-    # 合并统计特征
-    # df1=pd.read_csv(choose+name)
-    # df1['label']=softwares[name[:-4]]
-    # df1.to_csv(config.HTTPS_CONFIG["ouput_path"],index=False,header=False,mode='a+')
-    # del df1
-    # 合并 Record Type
-
-    df2=pd.read_csv(config.HTTPS_CONFIG["record_type_total"]+name[:-4]+"_record_type.csv").fillna(256)
-    df2['label']=softwares[name[:-4]]
-    df2.to_csv(config.HTTPS_CONFIG["record_type_output_path"],index=False,header=False,mode='a+')
-    del df2
-    # 合并 packet length
-
-    df3=pd.read_csv(config.HTTPS_CONFIG["packet_length_total"]+name[:-4]+"_packet_length.csv").fillna(0)
-    df3['label']=softwares[name[:-4]]
-    df3.to_csv(config.HTTPS_CONFIG["packet_length_output_path"],index=False,header=False,mode='a+')
-    del df3
-
-# output=pd.read_csv(config.HTTPS_CONFIG["ouput_path"])
-# train_index,val_index=train_test_split(range(output.__len__()),test_size=0.2,shuffle=True)
+# output=pd.DataFrame(columns=output_columns)
+# output.to_csv(config.HTTPS_CONFIG["ouput_path"],index=False)
 #
-# output_train,output_val=output.iloc[train_index],output.iloc[val_index]
-# output_train.to_csv(config.HTTPS_CONFIG["train_path"],index=False)
-# output_val.to_csv(config.HTTPS_CONFIG["val_path"],index=False)
+# record_type_names=["id"]+["Seq_"+str(i) for i in range(128)]+['label']
+# record_type=pd.DataFrame(columns=record_type_names)
+# record_type.to_csv(config.HTTPS_CONFIG["record_type_output_path"],index=False)
+#
+# packet_length_names=["id"]+["Seq_"+str(i) for i in range(128)]+['label']
+# packet_length=pd.DataFrame(columns=packet_length_names)
+# packet_length.to_csv(config.HTTPS_CONFIG["packet_length_output_path"],index=False)
+#
+# names=os.listdir(choose)
+# softwares={names[i][:-4]:i for i in range(len(names))}
+
+
+# for name in names:
+#     # 合并统计特征
+#     df1=pd.read_csv(choose+name)
+#     df1['label']=softwares[name[:-4]]
+#     df1.to_csv(config.HTTPS_CONFIG["ouput_path"],index=False,header=False,mode='a+')
+#     del df1
+#     # 合并 Record Type
+#
+#     df2=pd.read_csv(config.HTTPS_CONFIG["record_type_total"]+name[:-4]+"_record_type.csv").fillna(256)
+#     df2['label']=softwares[name[:-4]]
+#     df2.to_csv(config.HTTPS_CONFIG["record_type_output_path"],index=False,header=False,mode='a+')
+#     del df2
+#     # 合并 packet length
+#
+#     df3=pd.read_csv(config.HTTPS_CONFIG["packet_length_total"]+name[:-4]+"_packet_length.csv").fillna(0)
+#     df3['label']=softwares[name[:-4]]
+#     df3.to_csv(config.HTTPS_CONFIG["packet_length_output_path"],index=False,header=False,mode='a+')
+#     del df3
+
+output=pd.read_csv(config.HTTPS_CONFIG["ouput_path"])
+train_index,val_index=train_test_split(range(output.__len__()),test_size=0.2,shuffle=True)
+
+output_train,output_val=output.iloc[train_index],output.iloc[val_index]
+output_train.to_csv(config.HTTPS_CONFIG["train_path"],index=False)
+output_val.to_csv(config.HTTPS_CONFIG["val_path"],index=False)
 
 
 record_type=pd.read_csv(config.HTTPS_CONFIG["record_type_output_path"])
