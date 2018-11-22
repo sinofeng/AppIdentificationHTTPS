@@ -50,6 +50,8 @@ def input_fn(filenames, train, batch_size=32, buffer_size=2048):
 # 训练batch
 def train_input_fn():
     return input_fn(filenames=path_tfrecords_train, train=True)
+
+
 # 测试batch
 def test_input_fn():
     return input_fn(filenames=path_tfrecords_test, train=False,batch_size=5000)
@@ -57,25 +59,45 @@ def test_input_fn():
 # 定义模型
 def model_fn(features, labels, mode, params):
 
-    x = features["packetPayload"]
-    net = tf.reshape(x, [-1, 32, 32, 1])
+    x1 = features["packetPayload"]
+    net1 = tf.reshape(x1, [-1, 32, 32, 1])
 
     # First convolutional layer.
-    net = tf.layers.conv2d(inputs=net, name='layer_conv1',
+    net1 = tf.layers.conv2d(inputs=net1, name='layer_conv1',
                            filters=32, kernel_size=3,
                            padding='same', activation=tf.nn.relu)
-    net = tf.layers.max_pooling2d(inputs=net, pool_size=2, strides=2)
+    net1 = tf.layers.max_pooling2d(inputs=net1, pool_size=2, strides=2)
 
-    net = tf.layers.conv2d(inputs=net, name='layer_conv2',
+    net1 = tf.layers.conv2d(inputs=net1, name='layer_conv2',
                            filters=32, kernel_size=3,
                            padding='same', activation=tf.nn.relu)
-    net = tf.layers.max_pooling2d(inputs=net, pool_size=2, strides=2)
-    net = tf.contrib.layers.flatten(net)
-    net = tf.layers.dense(inputs=net, name='layer_fc1',
+    net1 = tf.layers.max_pooling2d(inputs=net1, pool_size=2, strides=2)
+    net1 = tf.contrib.layers.flatten(net1)
+    net1 = tf.layers.dense(inputs=net1, name='layer_fc1',
                           units=128, activation=tf.nn.relu)
 
-    # Second fully-connected / dense layer.
-    net = tf.layers.dense(inputs=net, name='layer_fc_2',units=14)
+    x2 = features["recordTypes"]
+    net2 = tf.reshape(x2,[-1,64])
+    # Embedding
+    word_embeddings = tf.get_variable("word_embeddings",[257, 32])
+
+
+    net2 = tf.nn.embedding_lookup(word_embeddings, net2)
+    # Rnn
+    rnn_cell=tf.nn.rnn_cell.BasicRNNCell(64)
+    output, states = tf.nn.dynamic_rnn(rnn_cell, net2, dtype=tf.float32)
+    net2 = tf.layers.dense(inputs=output[:,-1,:], name='layer_rnn_fc_1',
+                          units=128, activation=tf.nn.relu)
+    # Combine net1 and net2
+    print(net1.shape)
+    print(net2.shape)
+    net = tf.concat([net1,net2],1)
+    print(net.shape)
+    # Attention
+    # fully connect 1
+    net = tf.layers.dense(inputs=net, name='layer_combine_fc_x',units=128,activation=tf.nn.relu)
+    # fully connect 2
+    net = tf.layers.dense(inputs=net, name='layer_combine_fc_y',units=14)
 
     # Logits output of the neural network.
     logits = net
@@ -121,7 +143,7 @@ params = {"learning_rate": 1e-4}
 
 model = tf.estimator.Estimator(model_fn=model_fn,
                                params=params,
-                               model_dir="./checkpoints_tutorial18-2/")
+                               model_dir="./checkpoints_rnn_cnn/")
 
 # 训练模型
 model.train(input_fn=train_input_fn, steps=20000)

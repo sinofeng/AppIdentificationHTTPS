@@ -450,7 +450,7 @@ node {
         dtype: DT_STRING
         tensor_shape {
         }
-        string_val: "train.tfrecord"
+        string_val: "../../data/train.tfrecord"
       }
     }
   }
@@ -732,7 +732,7 @@ node {
     key: "dataset_factory"
     value {
       func {
-        name: "_make_dataset_aBL66IAPUgQ"
+        name: "_make_dataset_oSp1l4nOVMM"
       }
     }
   }
@@ -1085,7 +1085,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.142133817077
+        float_val: -0.14213381707668304
       }
     }
   }
@@ -1123,7 +1123,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.142133817077
+        float_val: 0.14213381707668304
       }
     }
   }
@@ -1954,7 +1954,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.10206207633
+        float_val: -0.10206207633018494
       }
     }
   }
@@ -1992,7 +1992,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.10206207633
+        float_val: 0.10206207633018494
       }
     }
   }
@@ -3118,7 +3118,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.0525105036795
+        float_val: -0.05251050367951393
       }
     }
   }
@@ -3156,7 +3156,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.0525105036795
+        float_val: 0.05251050367951393
       }
     }
   }
@@ -3797,7 +3797,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: -0.205556616187
+        float_val: -0.20555661618709564
       }
     }
   }
@@ -3835,7 +3835,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.205556616187
+        float_val: 0.20555661618709564
       }
     }
   }
@@ -6904,7 +6904,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.899999976158
+        float_val: 0.8999999761581421
       }
     }
   }
@@ -7057,7 +7057,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.999000012875
+        float_val: 0.9990000128746033
       }
     }
   }
@@ -10652,7 +10652,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 9.99999974738e-05
+        float_val: 9.999999747378752e-05
       }
     }
   }
@@ -10682,7 +10682,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.899999976158
+        float_val: 0.8999999761581421
       }
     }
   }
@@ -10712,7 +10712,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 0.999000012875
+        float_val: 0.9990000128746033
       }
     }
   }
@@ -10742,7 +10742,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 9.99999993923e-09
+        float_val: 9.99999993922529e-09
       }
     }
   }
@@ -16399,7 +16399,7 @@ node {
         dtype: DT_STRING
         tensor_shape {
         }
-        string_val: "_temp_cc361aed7beb41e5b2aa9b8a58d63bfa/part"
+        string_val: "_temp_83d82457c78c461ca8652125b8be7058/part"
       }
     }
   }
@@ -18353,7 +18353,7 @@ node {
 library {
   function {
     signature {
-      name: "_make_dataset_aBL66IAPUgQ"
+      name: "_make_dataset_oSp1l4nOVMM"
       output_arg {
         name: "batchdatasetv2"
         type: DT_VARIANT
@@ -18377,7 +18377,7 @@ library {
             dtype: DT_STRING
             tensor_shape {
             }
-            string_val: "train.tfrecord"
+            string_val: "../../data/train.tfrecord"
           }
         }
       }
@@ -18540,6 +18540,12 @@ library {
             type: DT_INT64
             type: DT_INT64
           }
+        }
+      }
+      attr {
+        key: "use_inter_op_parallelism"
+        value {
+          b: true
         }
       }
     }
