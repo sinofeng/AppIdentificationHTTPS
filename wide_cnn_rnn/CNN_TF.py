@@ -1,7 +1,9 @@
 import tensorflow as tf
+from result import figures
+
 tf.logging.set_verbosity(tf.logging.INFO)
-path_tfrecords_train="train.tfrecord"
-path_tfrecords_test="test.tfrecord"
+path_tfrecords_train="../../data/train.tfrecord"
+path_tfrecords_test="../../data/test.tfrecord"
 
 def parse(serialized):
     features = {
@@ -37,7 +39,6 @@ def input_fn(filenames, train, batch_size=32, buffer_size=2048):
     x = {"recordTypes":recordTypes_batch,
          "packetLength":packetLength_batch,
          "packetPayload":packetPayload_batch}
-    # y = tf.one_hot(label_batch,14)
     y = label_batch
     return x, y
 
@@ -45,7 +46,7 @@ def input_fn(filenames, train, batch_size=32, buffer_size=2048):
 def train_input_fn():
     return input_fn(filenames=path_tfrecords_train, train=True)
 def test_input_fn():
-    return input_fn(filenames=path_tfrecords_test, train=False)
+    return input_fn(filenames=path_tfrecords_test, train=False,batch_size=5000)
 
 
 def model_fn(features, labels, mode, params):
@@ -115,6 +116,20 @@ model = tf.estimator.Estimator(model_fn=model_fn,
                                params=params,
                                model_dir="./checkpoints_tutorial18-2/")
 
-model.train(input_fn=train_input_fn, steps=20000)
-result = model.evaluate(input_fn=test_input_fn)
+# model.train(input_fn=train_input_fn, steps=20000)
+result = model.evaluate (input_fn=test_input_fn)
 print(result)
+
+predicts=model.predict(input_fn=test_input_fn)
+print(predicts)
+predicts=[p for p in predicts]
+print(predicts)
+
+_,y=test_input_fn()
+sess = tf.Session()
+init = tf.initialize_all_variables()
+sess.run(init)
+y_true=sess.run(y)
+
+alphabet=softwares=["baiduditu","baidutieba","cloudmusic","iqiyi","jingdong","jinritoutiao","meituan","qq","qqmusic","qqyuedu","taobao","weibo","xiecheng","zhihu"]
+figures.plot_confusion_matrix(y_true, predicts,alphabet, "./")
