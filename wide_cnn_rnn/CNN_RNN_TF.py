@@ -5,8 +5,8 @@ from result import figures
 # 打印log
 tf.logging.set_verbosity(tf.logging.INFO)
 # 数据路径
-path_tfrecords_train="../../data/train.tfrecord"
-path_tfrecords_test="../../data/test.tfrecord"
+path_tfrecords_train="../../data/no_vpn_train.tfrecord"
+path_tfrecords_test="../../data/no_vpn_test.tfrecord"
 
 # 定义解析函数
 def parse(serialized):
@@ -143,7 +143,7 @@ params = {"learning_rate": 1e-4}
 
 model = tf.estimator.Estimator(model_fn=model_fn,
                                params=params,
-                               model_dir="./checkpoints_rnn_cnn/")
+                               model_dir="./checkpoints_novpn_rnn_cnn/")
 
 # 训练模型
 model.train(input_fn=train_input_fn, steps=20000)
@@ -164,5 +164,6 @@ init = tf.initialize_all_variables()
 sess.run(init)
 y_true=sess.run(y)
 
-alphabet=softwares=["baiduditu","baidutieba","cloudmusic","iqiyi","jingdong","jinritoutiao","meituan","qq","qqmusic","qqyuedu","taobao","weibo","xiecheng","zhihu"]
+# alphabet=["baiduditu","baidutieba","cloudmusic","iqiyi","jingdong","jinritoutiao","meituan","qq","qqmusic","qqyuedu","taobao","weibo","xiecheng","zhihu"]
+alphabet=["AIM","email","facebookchat","gmailchat","hangoutsaudio","hangoutschat","icqchat","netflix","skypechat","skypefile","spotify","vimeo","youtube","youtubeHTML5"]
 figures.plot_confusion_matrix(y_true, predicts,alphabet, "./")

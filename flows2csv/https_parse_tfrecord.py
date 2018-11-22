@@ -42,23 +42,39 @@ def print_progress(count, total):
     sys.stdout.write(msg)
     sys.stdout.flush()
 
-softwares={"baiduditu":0,
-           "baidutieba":1,
-           "cloudmusic":2,
-           "iqiyi":3,
-           "jingdong":4,
-           "jinritoutiao":5,
-           "meituan":6,
-           "qq":7,
-           "qqmusic":8,
-           "qqyuedu":9,
-           "taobao":10,
-           "weibo":11,
-           "xiecheng":12,
-           "zhihu":13}
+# softwares={"baiduditu":0,
+#            "baidutieba":1,
+#            "cloudmusic":2,
+#            "iqiyi":3,
+#            "jingdong":4,
+#            "jinritoutiao":5,
+#            "meituan":6,
+#            "qq":7,
+#            "qqmusic":8,
+#            "qqyuedu":9,
+#            "taobao":10,
+#            "weibo":11,
+#            "xiecheng":12,
+#            "zhihu":13}
+
+softwares={"AIM":0,
+           "email":1,
+           "facebookchat":2,
+           "gmailchat":3,
+           "hangoutsaudio":4,
+           "hangoutschat":5,
+           "icqchat":6,
+           "netflix":7,
+           "skypechat":8,
+           "skypefile":9,
+           "spotify":10,
+           "vimeo":11,
+           "youtube":12,
+           "youtubeHTML5":13}
+
 
 def packet_parse(pcap_file):
-    packets=rdpcap("./ALL"+pcap_file)
+    packets=rdpcap("../../data/wd_https/noVPN/"+pcap_file)
     packets = [ pkt for pkt in packets if IP in pkt for p in pkt if TCP in p ]
     recordTypes=[getRecordType(pkt) for pkt in packets]
     recordTypes=padArray(recordTypes,256,64)
@@ -78,11 +94,11 @@ def packet_parse(pcap_file):
 
 
 
-pcap_files=os.listdir("./ALL/")
+pcap_files=os.listdir("../../data/wd_https/noVPN/")
 np.random.shuffle(pcap_files)
 
-train_files=pcap_files[5000:]
-test_files=pcap_files[:5000]
+train_files=pcap_files[500:]
+test_files=pcap_files[:500]
 
 def convert(pcap_files, out_path):
     print("Converting: " + out_path)
@@ -90,7 +106,7 @@ def convert(pcap_files, out_path):
     with tf.python_io.TFRecordWriter(out_path) as writer:
         i=0
         for pacp_file in pcap_files:
-            print_progress(num, i)
+            print_progress(i, num)
             recordTypes, packetLength, packetPayload, label = packet_parse(pacp_file)
             example = tf.train.Example(features=tf.train.Features(
                 feature={'recordTypes': wrap_array(recordTypes),
@@ -140,9 +156,9 @@ def input_fn(filenames, train, batch_size=32, buffer_size=2048):
     y = tf.one_hot(label_batch)
 
     return x, y
-#
-# start=time.time()
-# convert(train_files,"train.tfrecord")
-# convert(test_files,"test.tfrecord")
-# end=time.time()
-# print ("time cost:",end-start)
+
+start=time.time()
+convert(train_files,"../../data/wd_https/no_vpn_train.tfrecord")
+convert(test_files,"../../data/wd_https/no_vpn_test.tfrecord")
+end=time.time()
+print ("time cost:",end-start)
