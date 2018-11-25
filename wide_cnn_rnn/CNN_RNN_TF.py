@@ -5,8 +5,8 @@ from result import figures
 # 打印log
 tf.logging.set_verbosity(tf.logging.INFO)
 # 数据路径
-path_tfrecords_train="../../data/no_vpn_train.tfrecord"
-path_tfrecords_test="../../data/no_vpn_test.tfrecord"
+path_tfrecords_train="../../data/train.tfrecord"
+path_tfrecords_test="../../data/test.tfrecord"
 
 # 定义解析函数
 def parse(serialized):
@@ -94,10 +94,14 @@ def model_fn(features, labels, mode, params):
     net = tf.concat([net1,net2],1)
     print(net.shape)
     # Attention
+    attention_probs = tf.layers.dense(inputs=net,  name="attention_probs",units=256,activation='softmax')
+    net=tf.multiply(net,attention_probs)
+    print("net.shape:",net.shape)
     # fully connect 1
     net = tf.layers.dense(inputs=net, name='layer_combine_fc_x',units=128,activation=tf.nn.relu)
     # fully connect 2
     net = tf.layers.dense(inputs=net, name='layer_combine_fc_y',units=14)
+
 
     # Logits output of the neural network.
     logits = net
@@ -123,17 +127,23 @@ def model_fn(features, labels, mode, params):
         # Get the TensorFlow op for doing a single optimization step.
         train_op = optimizer.minimize(
             loss=loss, global_step=tf.train.get_global_step())
+        accuracy = tf.metrics.accuracy(labels, y_pred_cls)
+        tf.summary.scalar('accuracy',accuracy[1])
         metrics = \
             {
-                "accuracy": tf.metrics.accuracy(labels, y_pred_cls)
+                "accuracy": accuracy
             }
 
+        logging_hook = tf.train.LoggingTensorHook({"loss": loss,
+                                                   "accuracy": accuracy}, every_n_iter=10)
         # Wrap all of this in an EstimatorSpec.
         spec = tf.estimator.EstimatorSpec(
             mode=mode,
             loss=loss,
             train_op=train_op,
-            eval_metric_ops=metrics)
+            eval_metric_ops=metrics,
+            # training_hooks=[logging_hook]
+        )
 
     return spec
 

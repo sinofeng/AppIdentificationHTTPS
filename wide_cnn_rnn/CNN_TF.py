@@ -101,9 +101,12 @@ def model_fn(features, labels, mode, params):
         # Get the TensorFlow op for doing a single optimization step.
         train_op = optimizer.minimize(
             loss=loss, global_step=tf.train.get_global_step())
+
+        accuracy = tf.metrics.accuracy(labels, y_pred_cls)
+        tf.summary.scalar('accuracy', accuracy[1])
         metrics = \
             {
-                "accuracy": tf.metrics.accuracy(labels, y_pred_cls)
+                "accuracy": accuracy
             }
 
         # Wrap all of this in an EstimatorSpec.
