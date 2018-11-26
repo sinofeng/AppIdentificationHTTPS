@@ -31,7 +31,7 @@ def session_id_len(pkt):
 			return pkt[field].session_id_length
 		except:
 			pass
-	return None
+	return 0
 def client_extensions_length(pkt):
 	if str(pkt.sprintf).find("TLSClientHello")>-1:
 		try:
@@ -62,10 +62,7 @@ def getRecordType(pkt):
 			recordtype=pkt["SSLv2 Record"].content_type
 		except:
 			recordtype=256
-	if 1==0:
-		return 99
-	else:
-		return recordtype
+	return recordtype
 
 class TCPStream:
 	def __init__(self,pkt):

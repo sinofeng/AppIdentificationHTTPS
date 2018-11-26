@@ -135,14 +135,14 @@ def model_fn(features, labels, mode, params):
             }
 
         logging_hook = tf.train.LoggingTensorHook({"loss": loss,
-                                                   "accuracy": accuracy}, every_n_iter=10)
+                                                   "accuracy": accuracy[1]}, every_n_iter=10)
         # Wrap all of this in an EstimatorSpec.
         spec = tf.estimator.EstimatorSpec(
             mode=mode,
             loss=loss,
             train_op=train_op,
             eval_metric_ops=metrics,
-            # training_hooks=[logging_hook]
+            training_hooks=[logging_hook]
         )
 
     return spec

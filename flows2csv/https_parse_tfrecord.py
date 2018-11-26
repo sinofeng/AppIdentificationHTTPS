@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 #coding=utf-8
+"""
+@author: TianMao
+@contact: tianmao1994@yahoo.com
+@file: https_parse.py
+@time: 18-11-12 下午7:50
+@desc: 解析包,将ascii写入到tfrecord中.特征包括:统计特征,payload,content type,packet长度
+可以变化的包括:payload的长度,packet的数目
+"""
+
 from scapy.all import *
 from scapy.all import IP,TCP
 from scapy_ssl_tls.ssl_tls import *
@@ -74,6 +83,11 @@ softwares={"AIM":0,
 
 
 def packet_parse(pcap_file):
+    '''
+    解析pcap文件
+    :param pcap_file:
+    :return:content type,packet长度,payload,label
+    '''
     packets=rdpcap("../../data/wd_https/noVPN/"+pcap_file)
     packets = [ pkt for pkt in packets if IP in pkt for p in pkt if TCP in p ]
     recordTypes=[getRecordType(pkt) for pkt in packets]

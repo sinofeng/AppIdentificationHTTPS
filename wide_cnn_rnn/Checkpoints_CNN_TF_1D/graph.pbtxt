@@ -13212,6 +13212,57 @@ node {
   }
 }
 node {
+  name: "accuracy_1/tags"
+  op: "Const"
+  attr {
+    key: "_output_shapes"
+    value {
+      list {
+        shape {
+        }
+      }
+    }
+  }
+  attr {
+    key: "dtype"
+    value {
+      type: DT_STRING
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_STRING
+        tensor_shape {
+        }
+        string_val: "accuracy_1"
+      }
+    }
+  }
+}
+node {
+  name: "accuracy_1"
+  op: "ScalarSummary"
+  input: "accuracy_1/tags"
+  input: "accuracy/update_op"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_output_shapes"
+    value {
+      list {
+        shape {
+        }
+      }
+    }
+  }
+}
+node {
   name: "loss/tags"
   op: "Const"
   attr {
@@ -17356,11 +17407,12 @@ node {
 node {
   name: "Merge/MergeSummary"
   op: "MergeSummary"
+  input: "accuracy_1"
   input: "loss"
   attr {
     key: "N"
     value {
-      i: 1
+      i: 2
     }
   }
   attr {
@@ -17428,7 +17480,7 @@ node {
         dtype: DT_STRING
         tensor_shape {
         }
-        string_val: "_temp_1512f622cf3346b4945ce0f01e3d30a9/part"
+        string_val: "_temp_a86ff31fc06c4d9f99d621e4b6668519/part"
       }
     }
   }

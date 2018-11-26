@@ -108,13 +108,15 @@ def model_fn(features, labels, mode, params):
             {
                 "accuracy": accuracy
             }
-
+        logging_hook = tf.train.LoggingTensorHook({"accuracy": accuracy[1], "loss": loss}, every_n_iter=20)
         # Wrap all of this in an EstimatorSpec.
         spec = tf.estimator.EstimatorSpec(
             mode=mode,
             loss=loss,
             train_op=train_op,
-            eval_metric_ops=metrics)
+            eval_metric_ops=metrics,
+            training_hooks=[logging_hook]
+        )
 
     return spec
 
@@ -124,10 +126,10 @@ params = {"learning_rate": 1e-4}
 
 model = tf.estimator.Estimator(model_fn=model_fn,
                                params=params,
-                               model_dir="./checkpoints_tutorial18-2/")
+                               model_dir="./Checkpoints_CNN_TF_2D/")
 
 # 训练模型
-model.train(input_fn=train_input_fn, steps=20000)
+model.train(input_fn=train_input_fn, steps=40000)
 
 # 评估模型
 result = model.evaluate (input_fn=test_input_fn)

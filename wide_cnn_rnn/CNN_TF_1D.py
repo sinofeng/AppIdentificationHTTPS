@@ -108,6 +108,8 @@ def model_fn(features, labels, mode, params):
             loss=loss, global_step=tf.train.get_global_step())
 
         accuracy=tf.metrics.accuracy(labels, y_pred_cls)
+        # 在tensorboard中可以导出loss和accuracy的csv格式文件
+        tf.summary.scalar('accuracy', accuracy[1])
         metrics = \
             {
                 "accuracy": accuracy
@@ -133,7 +135,7 @@ model = tf.estimator.Estimator(model_fn=model_fn,
                                model_dir="./Checkpoints_CNN_TF_1D/")
 
 # 训练模型
-model.train(input_fn=train_input_fn, steps=20000)
+model.train(input_fn=train_input_fn, steps=40000)
 
 # 评估模型
 result = model.evaluate (input_fn=test_input_fn)
