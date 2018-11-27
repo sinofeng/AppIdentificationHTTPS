@@ -9,8 +9,8 @@ from sklearn.metrics import accuracy_score
 # 打印log
 tf.logging.set_verbosity(tf.logging.INFO)
 # 数据路径
-path_tfrecords_train="../../data/train.tfrecord"
-path_tfrecords_test="../../data/test.tfrecord"
+path_tfrecords_train="../../data/android_train_complete.tfrecord"
+path_tfrecords_test="../../data/android_test_complete.tfrecord"
 
 # 定义解析函数
 def parse(serialized):
