@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+#encoding=utf-8
+"""
+@author: TianMao
+@contact: tianmao1994@yahoo.com
+@file: loss_acc.py
+@time: 18-11-26 下午6:50
+@desc:
+"""
 import pandas as pd
 import numpy as np
 import math

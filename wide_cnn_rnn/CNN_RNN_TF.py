@@ -1,5 +1,12 @@
 #!/usr/bin/env python
-#coding=utf-8
+#encoding=utf-8
+"""
+@author: TianMao
+@contact: tianmao1994@yahoo.com
+@file: CNN_RNN_TF.py
+@time: 18-11-26 下午6:50
+@desc: payload上进行二维卷积,content type上执行RNN
+"""
 import tensorflow as tf
 from result import figures
 # 打印log

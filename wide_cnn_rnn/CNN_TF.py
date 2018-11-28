@@ -1,12 +1,20 @@
 #!/usr/bin/env python
 #coding=utf-8
+"""
+@author: TianMao
+@contact: tianmao1994@yahoo.com
+@file: CNN_TF.py
+@time: 18-11-28 下午15:41
+@desc: 使用predict计算出中间结果保存
+"""
 import tensorflow as tf
-from result import figures
+import numpy as np
+import pandas as pd
 # 打印log
 tf.logging.set_verbosity(tf.logging.INFO)
 # 数据路径
-path_tfrecords_train="../../data/train.tfrecord"
-path_tfrecords_test="../../data/test.tfrecord"
+path_tfrecords_train="../../data/android_train.tfrecord"
+path_tfrecords_test="../../data/no_vpn_train.tfrecord"
 
 # 定义解析函数
 def parse(serialized):
@@ -57,7 +65,8 @@ def test_input_fn():
 # 定义模型
 def model_fn(features, labels, mode, params):
 
-    x = features["packetPayload"]
+    with tf.variable_scope("x"):
+        x = features["packetPayload"]
     net = tf.reshape(x, [-1, 32, 32, 1])
 
     # First convolutional layer.
@@ -71,24 +80,28 @@ def model_fn(features, labels, mode, params):
                            padding='same', activation=tf.nn.relu)
     net = tf.layers.max_pooling2d(inputs=net, pool_size=2, strides=2)
     net = tf.contrib.layers.flatten(net)
-    net = tf.layers.dense(inputs=net, name='layer_fc1',
-                          units=128, activation=tf.nn.relu)
 
+    net_fc1 = tf.layers.dense(inputs=net, name='layer_fc1',
+                          units=128, activation=tf.nn.relu)
     # Second fully-connected / dense layer.
-    net = tf.layers.dense(inputs=net, name='layer_fc_2',units=14)
+    net = tf.layers.dense(inputs=net_fc1, name='layer_fc_2',units=14)
 
     # Logits output of the neural network.
     logits = net
 
     # Softmax output of the neural network.
-    y_pred = tf.nn.softmax(logits=logits)
+    y_pred = tf.nn.softmax(logits=logits,name='softmax')
 
     # Classification output of the neural network.
-    y_pred_cls = tf.argmax(y_pred, axis=1)
+    y_pred_cls = tf.argmax(y_pred, axis=1,name='argmax')
 
     if mode == tf.estimator.ModeKeys.PREDICT:
+        predictions={
+            'layer_fc1':net_fc1,
+            'y_pred_cls':y_pred_cls
+        }
         spec = tf.estimator.EstimatorSpec(mode=mode,
-                                          predictions=y_pred_cls)
+                                          predictions=predictions)
     else:
 
         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels,
@@ -129,23 +142,34 @@ model = tf.estimator.Estimator(model_fn=model_fn,
                                model_dir="./Checkpoints_CNN_TF_2D/")
 
 # 训练模型
-model.train(input_fn=train_input_fn, steps=40000)
+# model.train(input_fn=train_input_fn, steps=1000)
 
 # 评估模型
-result = model.evaluate (input_fn=test_input_fn)
+fun=test_input_fn
+result = model.evaluate (input_fn=fun)
 print(result)
 
 # 模型预测
-predicts=model.predict(input_fn=test_input_fn)
-print(predicts)
+predicts=model.predict(input_fn=test_input_fn,predict_keys=["layer_fc1"])
 predicts=[p for p in predicts]
-print(predicts)
 
-_,y=test_input_fn()
+#
+_,y=fun()
 sess = tf.Session()
 init = tf.initialize_all_variables()
 sess.run(init)
 y_true=sess.run(y)
 
-alphabet=softwares=["baiduditu","baidutieba","cloudmusic","iqiyi","jingdong","jinritoutiao","meituan","qq","qqmusic","qqyuedu","taobao","weibo","xiecheng","zhihu"]
-figures.plot_confusion_matrix(y_true, predicts,alphabet, "./")
+x_name=["x_%s"%str(i) for i in range(128)]
+x_name.append("label")
+
+output=pd.DataFrame(columns=x_name)
+output.to_csv("../result/train.csv",index=False)
+
+with open("../result/train.csv",'a')as f:
+    for (x,y) in zip(predicts,y_true):
+        x_tmp=x['layer_fc1']
+        x_tmp=list(x_tmp)
+        x_tmp.append(y)
+        f.write(str(x_tmp).strip('[]')+'\n')
+
