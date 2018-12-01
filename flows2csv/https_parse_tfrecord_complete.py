@@ -182,8 +182,9 @@ def packet_parse(pcap_file):
     packetLength=padArray(packetLength,0,64)
 
     payloads=""
-    for pkt in packets[:20]:
+    for pkt in packets[:64]:
         payloads+=str(pkt.payload)[:64]
+
     packetPayload=[ord(c) for c in payloads]
     packetPayload=padArray(packetPayload,-1,1024)
     packetStatistic=getPacketStatistic(packets)

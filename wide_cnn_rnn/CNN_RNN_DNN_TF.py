@@ -44,6 +44,7 @@ def input_fn(filenames, train, batch_size=32, buffer_size=2048):
     iterator = dataset.make_one_shot_iterator()
     recordTypes_batch, packetLength_batch, packetPayload_batch,packetStatistic_batch, label_batch= iterator.get_next()
     packetPayload_batch=tf.cast(packetPayload_batch,tf.float32)
+    packetLength_batch=tf.cast(packetLength_batch,tf.float32)
     x = {"recordTypes":recordTypes_batch,
          "packetLength":packetLength_batch,
          "packetPayload":packetPayload_batch,
@@ -63,8 +64,14 @@ def test_input_fn():
 
 # 定义模型
 def model_fn(features, labels, mode, params):
-
+    choose = "model_cnn1d"
+    # choose = "model_cnn1d_2"
+    # choose = "model_cnn1d_rnn"
+    # choose = "model_dnn"
+    # choose = "model_cnn1d_rnn"
+    # choose = "model_cnn_rnn_dnn"
     x1 = features["packetPayload"]
+    x1 = tf.layers.batch_normalization(inputs=x1)
     net1 = tf.reshape(x1, [-1, 1024, 1])
 
     # First convolutional layer.
@@ -97,7 +104,36 @@ def model_fn(features, labels, mode, params):
     net3 = tf.layers.batch_normalization(inputs=x3)
     net3 = tf.layers.dense(inputs=net3,name="layer_dnn_1",units=32,activation=tf.nn.relu)
     net3 = tf.layers.dense(inputs=net3,name="layer_dnn_2",units=32,activation=tf.nn.relu)
-    net = tf.concat([net1,net2],1)
+
+    x4 = features["packetLength"]
+    x4 = tf.layers.batch_normalization(inputs=x4)
+    net4 = tf.reshape(x4, [-1, 64, 1])
+
+    # First convolutional layer.
+    net4 = tf.layers.conv1d(inputs=net4, name='layer_length_conv1',
+                           filters=32, kernel_size=3,
+                           padding='same', activation=tf.nn.relu)
+    net4 = tf.layers.max_pooling1d(inputs=net4, pool_size=2, strides=2)
+
+    net4 = tf.layers.conv1d(inputs=net4, name='layer_length_conv2',
+                           filters=32, kernel_size=3,
+                           padding='same', activation=tf.nn.relu)
+    net4 = tf.layers.max_pooling1d(inputs=net4, pool_size=2, strides=2)
+    net4 = tf.contrib.layers.flatten(net4)
+    net4 = tf.layers.dense(inputs=net4, name='layer_length_fc1',
+                          units=128, activation=tf.nn.relu)
+    if choose == "model_cnn1d":
+        net = tf.layers.dense(inputs=net1, name='layer_combine_fc_cnn1d', units=128, activation=tf.nn.relu)
+    if choose == "model_cnn1d_2":
+        net = tf.concat([net1,net4],1)
+    if choose == "model_cnn1d_rnn":
+        net = tf.concat([net1,net2],1)
+    if choose == "model_dnn":
+        net=net3
+    if choose == "model_cnn1d_rnn":
+        net = tf.concat([net1,net3],1)
+    if choose == "model_cnn_rnn_dnn":
+        net = tf.concat([net1,net2,net3,net4],1)
     # net = tf.concat([net1,net2,net3],1)
     # print(net.shape)
     # # Attention
@@ -160,10 +196,16 @@ def model_fn(features, labels, mode, params):
 
 params = {"learning_rate": 1e-4}
 
+choose = "model_cnn1d"
+# choose = "model_cnn1d_2"
+# choose = "model_cnn1d_rnn"
+# choose = "model_dnn"
+# choose = "model_cnn1d_rnn"
+# choose = "model_cnn_rnn_dnn"
 
 model = tf.estimator.Estimator(model_fn=model_fn,
                                params=params,
-                               model_dir="./checkpoints_rnn_cnn_dnn/")
+                               model_dir="./checkpoints_"+choose)
 
 # 训练模型
 model.train(input_fn=train_input_fn, steps=40000)
