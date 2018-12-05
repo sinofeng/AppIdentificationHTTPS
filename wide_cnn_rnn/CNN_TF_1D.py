@@ -2,22 +2,23 @@
 #coding=utf-8
 import tensorflow as tf
 from result import figures
-from sklearn.metrics import f1_score
-from sklearn.metrics import recall_score
+from sklearn.metrics import precision_score,recall_score,f1_score
 from sklearn.metrics import accuracy_score
 
 # 打印log
 tf.logging.set_verbosity(tf.logging.INFO)
+config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.5))
+trainingConfig = tf.estimator.RunConfig(session_config=config)
 # 数据路径
-path_tfrecords_train="../../data/android_train_complete.tfrecord"
-path_tfrecords_test="../../data/android_test_complete.tfrecord"
+path_tfrecords_train="../../data/preprocessed/train_complete_784.tfrecord"
+path_tfrecords_test="../../data/preprocessed/test_complete_784.tfrecord"
 
 # 定义解析函数
 def parse(serialized):
     features = {
         'recordTypes': tf.FixedLenFeature([64], tf.int64),
         'packetLength': tf.FixedLenFeature([64], tf.int64),
-        'packetPayload': tf.FixedLenFeature([1024], tf.int64),
+        'packetPayload': tf.FixedLenFeature([784], tf.int64),
         'label': tf.FixedLenFeature([], tf.int64)
     }
 
@@ -62,7 +63,7 @@ def test_input_fn():
 def model_fn(features, labels, mode, params):
 
     x = features["packetPayload"]
-    net = tf.reshape(x, [-1,1024, 1])
+    net = tf.reshape(x, [-1,784, 1])
 
     # First convolutional layer.
     net = tf.layers.conv1d(inputs=net, name='layer_conv1',
@@ -80,7 +81,7 @@ def model_fn(features, labels, mode, params):
                           units=128, activation=tf.nn.relu)
 
     # Second fully-connected / dense layer.
-    net = tf.layers.dense(inputs=net, name='layer_fc_2',units=14)
+    net = tf.layers.dense(inputs=net, name='layer_fc_2',units=20)
 
     # Logits output of the neural network.
     logits = net
@@ -131,8 +132,9 @@ params = {"learning_rate": 1e-4}
 
 
 model = tf.estimator.Estimator(model_fn=model_fn,
+                               config=trainingConfig,
                                params=params,
-                               model_dir="./Checkpoints_CNN_TF_1D/")
+                               model_dir="./Checkpoints_CNN_TF_1D_20/")
 
 # 训练模型
 model.train(input_fn=train_input_fn, steps=40000)
@@ -153,11 +155,13 @@ init = tf.initialize_all_variables()
 sess.run(init)
 y_true=sess.run(y)
 
-alphabet=softwares=["baiduditu","baidutieba","cloudmusic","iqiyi","jingdong","jinritoutiao","meituan","qq","qqmusic","qqyuedu","taobao","weibo","xiecheng","zhihu"]
+alphabet=softwares=["baiduditu","baidutieba","cloudmusic","iqiyi","jingdong","jinritoutiao","meituan","qq","qqmusic","qqyuedu","taobao","weibo","xiecheng","zhihu","douyin","elema","guotaijunan","QQyouxiang","tenxunxinwen","zhifubao"]
 figures.plot_confusion_matrix(y_true, predicts,alphabet, "./")
 
 print("accuracy_score:",accuracy_score(y_true,predicts))
-print("f1_score_micro:",f1_score(y_true,predicts,average='micro'))
+print("precision_score:",precision_score(y_true,predicts))
+# print("f1_score_micro:",f1_score(y_true,predicts,average='micro'))
 print("f1_score_macro:",f1_score(y_true,predicts,average='macro'))
-print("recall_score_micro:",recall_score(y_true,predicts,average='micro'))
+# print("recall_score_micro:",recall_score(y_true,predicts,average='micro'))
 print("recall_score_macro:",recall_score(y_true,predicts,average='macro'))
+

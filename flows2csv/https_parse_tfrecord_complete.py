@@ -15,6 +15,13 @@ from scapy_ssl_tls.ssl_tls import *
 import tensorflow as tf
 import numpy as np
 import os
+import sys
+
+pkt_counts = int(sys.argv[1])
+pkt_size = int(sys.argv[2])
+result_path = "%dx%d"%(pkt_counts,pkt_size)
+
+
 
 def wrap_int64(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
@@ -56,7 +63,14 @@ softwares={"baiduditu":0,
            "taobao":10,
            "weibo":11,
            "xiecheng":12,
-           "zhihu":13}
+           "zhihu":13,
+           "douyin":14,
+           "elema":15,
+           "guotaijunan":16,
+           "QQyouxiang":17,
+           "tenxunxinwen":18,
+           "zhifubao":19
+           }
 
 # softwares={"AIM":0,
 #            "email":1,
@@ -182,11 +196,11 @@ def packet_parse(pcap_file):
     packetLength=padArray(packetLength,0,64)
 
     payloads=""
-    for pkt in packets[:64]:
-        payloads+=str(pkt.payload)[:64]
+    for pkt in packets[:pkt_counts]:
+        payloads+=str(pkt.payload)[:pkt_size]
 
     packetPayload=[ord(c) for c in payloads]
-    packetPayload=padArray(packetPayload,-1,1024)
+    packetPayload=padArray(packetPayload,-1,pkt_counts*pkt_size)
     packetStatistic=getPacketStatistic(packets)
     i=pcap_file.find("_")
     label=softwares[pcap_file[:i]]
@@ -199,8 +213,8 @@ pcap_files=os.listdir("../../data/wd_https/noVPN/")
 
 np.random.shuffle(pcap_files)
 
-train_files=pcap_files[500:]
-test_files=pcap_files[:500]
+train_files=pcap_files[5000:]
+test_files=pcap_files[:5000]
 
 def convert(pcap_files, out_path):
     print("Converting: " + out_path)
@@ -221,54 +235,10 @@ def convert(pcap_files, out_path):
             writer.write(serialized)
             i = i + 1
 
-
-def parse(serialized):
-    features = {
-        'recordTypes': tf.FixedLenFeature([64], tf.int64),
-        'packetLength': tf.FixedLenFeature([64], tf.int64),
-        'packetPayload': tf.FixedLenFeature([1024], tf.int64),
-        'packetStatistic':tf.FixedLenFeature([24],tf.float32),
-        'label': tf.FixedLenFeature([], tf.int64)
-    }
-
-    parsed_example = tf.parse_single_example(serialized=serialized,
-                                             features=features)
-    recordTypes = parsed_example['recordTypes']
-    packetLength = parsed_example['packetLength']
-    packetPayload = parsed_example['packetPayload']
-    packetStatistic= parsed_example['packetStatistic']
-    label = parsed_example['label']
-    return recordTypes, packetLength, packetPayload, packetStatistic, label
-
-
-def input_fn(filenames, train, batch_size=32, buffer_size=2048):
-
-    dataset = tf.data.TFRecordDataset(filenames=filenames)
-    dataset = dataset.map(parse)
-
-    if train:
-        dataset = dataset.shuffle(buffer_size=buffer_size)
-        num_repeat = None
-    else:
-        num_repeat = 1
-    dataset = dataset.repeat(num_repeat)
-    dataset = dataset.batch(batch_size)
-    iterator = dataset.make_one_shot_iterator()
-    recordTypes_batch, packetLength_batch, packetPayload_batch,packetStatistic_batch, label_batch= iterator.get_next()
-    x = {"recordTypes":recordTypes_batch,
-         "packetLength":packetLength_batch,
-         "packetPayload":packetPayload_batch,
-         "packetStatistic":packetStatistic_batch}
-    y = tf.one_hot(label_batch)
-
-    return x, y
-
 start=time.time()
 
-# convert(train_files,"../../data/wd_https/no_vpn_train_complete.tfrecord")
-# convert(test_files,"../../data/wd_https/no_vpn_test_complete.tfrecord")
-convert(train_files,"../../data/wd_https/no_vpn_train_complete.tfrecord")
-convert(test_files,"../../data/wd_https/no_vpn_test_complete.tfrecord")
+convert(train_files,"../../data/wd_https/train_complete_%s.tfrecord"%result_path)
+convert(test_files,"../../data/wd_https/test_complete_%s.tfrecord"%result_path)
 
 end=time.time()
 print ("time cost:",end-start)

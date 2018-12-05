@@ -7,7 +7,8 @@ import numpy as np
 #绘制混淆矩阵
 def plot_confusion_matrix(y_true, y_pred, labels, save_path,font_size=10):
     tick_marks = np.array(range(len(labels))) + 0.5
-    def plot(cm, title='Confusion Matrix', cmap=plt.cm.binary):
+    # 配色:https://matplotlib.org/examples/color/colormaps_reference.html
+    def plot(cm, title='Confusion Matrix', cmap=plt.cm.YlGn):
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
         plt.title(title)
         plt.colorbar()
@@ -40,5 +41,5 @@ def plot_confusion_matrix(y_true, y_pred, labels, save_path,font_size=10):
 
     plot(cm_normalized, title='Normalized confusion matrix')
     # show confusion matrix
-    plt.savefig(save_path+"/confusematrix.png", format='png')
+    plt.savefig(save_path+"/confusematrix.png", format='png',bbox_inches='tight')
     plt.show()

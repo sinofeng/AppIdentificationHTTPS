@@ -1,15 +1,15 @@
 import tensorflow as tf
 
-filename_queue = tf.train.string_input_producer(['../../data/wd_https/no_vpn_train_complete.tfrecord'], num_epochs=None)
+filename_queue = tf.train.string_input_producer(['../../data/preprocessed/train_complete_16x80.tfrecord'], num_epochs=None)
 # create a reader from file queue
 reader = tf.TFRecordReader()
 _, serialized_example = reader.read(filename_queue)
 # get feature from serialized example
 features = tf.parse_single_example(serialized_example,
                                    features={
-                                       'recordTypes': tf.FixedLenFeature([64], tf.int64),
-                                       'packetLength': tf.FixedLenFeature([64], tf.int64),
-                                       'packetPayload': tf.FixedLenFeature([1024], tf.int64),
+                                       'recordTypes': tf.FixedLenFeature([16], tf.int64),
+                                       'packetLength': tf.FixedLenFeature([16], tf.int64),
+                                       'packetPayload': tf.FixedLenFeature([1280], tf.int64),
                                        'packetStatistic':tf.FixedLenFeature([24],tf.float32),
                                        'label': tf.FixedLenFeature([],tf.int64)
                                    }
@@ -35,17 +35,23 @@ init = tf.initialize_all_variables()
 sess.run(init)
 tf.train.start_queue_runners(sess=sess)
 a_val, b_val, c_val, d_val, e_val = sess.run([a_batch, b_batch, c_batch, d_batch, e_batch])
-print("="*20)
-print ('first batch:')
-print ('a_val:',a_val,len(a_val[0]))
-print ('b_val:',b_val,len(b_val[0]))
-print ('c_val:',c_val,len(c_val[0]))
-print ('d_val:',d_val,len(d_val[0]))
-print ('e_val:',e_val)
-a_val, b_val, c_val ,d_val= sess.run([a_batch, b_batch, c_batch,d_batch])
-print ('second batch:')
-print ('a_val:',a_val,len(a_val[0]))
-print ('b_val:',b_val,len(b_val[0]))
-print ('c_val:',c_val,len(c_val[0]))
-print ('d_val:',d_val,len(d_val[0]))
-print ('e_val:',e_val)
+# print("="*20)
+# print ('first batch:')
+# print ('a_val:',a_val,len(a_val[0]))
+# print ('b_val:',b_val,len(b_val[0]))
+# print ('c_val:',c_val,len(c_val[0]))
+# print ('d_val:',d_val,len(d_val[0]))
+# print ('e_val:',e_val)
+# a_val, b_val, c_val ,d_val= sess.run([a_batch, b_batch, c_batch,d_batch])
+# print ('second batch:')
+# print ('a_val:',a_val,len(a_val[0]))
+# print ('b_val:',b_val,len(b_val[0]))
+# print ('c_val:',c_val,len(c_val[0]))
+# print ('d_val:',d_val,len(d_val[0]))
+# print ('e_val:',e_val)
+
+print (a_val.tolist())
+print (b_val.tolist())
+print (c_val.tolist())
+print (d_val.tolist())
+print (e_val.tolist())

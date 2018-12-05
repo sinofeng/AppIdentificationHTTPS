@@ -2,19 +2,37 @@
 #coding=utf-8
 import tensorflow as tf
 from result import figures
+from sklearn.metrics import precision_score,recall_score,f1_score
+from sklearn.metrics import accuracy_score
+import sys
 # 打印log
 tf.logging.set_verbosity(tf.logging.INFO)
+config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.5))
+trainingConfig = tf.estimator.RunConfig(session_config=config)
 # 数据路径
-path_tfrecords_train="../../data/android_train_complete.tfrecord"
-path_tfrecords_test="../../data/android_test_complete.tfrecord"
+
+pkt_counts=int(sys.argv[1])
+pkt_size=int(sys.argv[2])
+
+path_tfrecords_train="../../data/preprocessed/train_complete_%dx%d.tfrecord"%(pkt_counts,pkt_size)
+path_tfrecords_test="../../data/preprocessed/test_complete_%dx%d.tfrecord"%(pkt_counts,pkt_size)
+
+
+choose = "model_cnn1d"
+# choose = "model_cnn1d_2"
+# choose = "model_cnn1d_rnn"
+# choose = "model_dnn"
+# choose = "model_cnn1d_rnn"
+# choose = "model_cnn1d_cnn1d_rnn"
+# choose = "model_cnn_rnn_dnn"
 
 
 # 定义解析函数
 def parse(serialized):
     features = {
-        'recordTypes': tf.FixedLenFeature([64], tf.int64),
-        'packetLength': tf.FixedLenFeature([64], tf.int64),
-        'packetPayload': tf.FixedLenFeature([1024], tf.int64),
+        'recordTypes': tf.FixedLenFeature([pkt_counts], tf.int64),
+        'packetLength': tf.FixedLenFeature([pkt_counts], tf.int64),
+        'packetPayload': tf.FixedLenFeature([pkt_counts*pkt_size], tf.int64),
         'packetStatistic': tf.FixedLenFeature([24], tf.float32),
         'label': tf.FixedLenFeature([], tf.int64)
     }
@@ -64,15 +82,10 @@ def test_input_fn():
 
 # 定义模型
 def model_fn(features, labels, mode, params):
-    choose = "model_cnn1d"
-    # choose = "model_cnn1d_2"
-    # choose = "model_cnn1d_rnn"
-    # choose = "model_dnn"
-    # choose = "model_cnn1d_rnn"
-    # choose = "model_cnn_rnn_dnn"
+
     x1 = features["packetPayload"]
     x1 = tf.layers.batch_normalization(inputs=x1)
-    net1 = tf.reshape(x1, [-1, 1024, 1])
+    net1 = tf.reshape(x1, [-1, pkt_counts*pkt_size, 1])
 
     # First convolutional layer.
     net1 = tf.layers.conv1d(inputs=net1, name='layer_conv1',
@@ -89,7 +102,7 @@ def model_fn(features, labels, mode, params):
                           units=128, activation=tf.nn.relu)
 
     x2 = features["recordTypes"]
-    net2 = tf.reshape(x2,[-1,64])
+    net2 = tf.reshape(x2,[-1,pkt_counts])
     # Embedding
     word_embeddings = tf.get_variable("word_embeddings",[257, 32])
 
@@ -107,7 +120,7 @@ def model_fn(features, labels, mode, params):
 
     x4 = features["packetLength"]
     x4 = tf.layers.batch_normalization(inputs=x4)
-    net4 = tf.reshape(x4, [-1, 64, 1])
+    net4 = tf.reshape(x4, [-1, pkt_counts, 1])
 
     # First convolutional layer.
     net4 = tf.layers.conv1d(inputs=net4, name='layer_length_conv1',
@@ -130,8 +143,8 @@ def model_fn(features, labels, mode, params):
         net = tf.concat([net1,net2],1)
     if choose == "model_dnn":
         net=net3
-    if choose == "model_cnn1d_rnn":
-        net = tf.concat([net1,net3],1)
+    if choose == "model_cnn1d_cnn1d_rnn":
+        net = tf.concat([net1,net2,net4],1)
     if choose == "model_cnn_rnn_dnn":
         net = tf.concat([net1,net2,net3,net4],1)
     # net = tf.concat([net1,net2,net3],1)
@@ -146,7 +159,7 @@ def model_fn(features, labels, mode, params):
     net = tf.layers.dense(inputs=net, name='layer_combine_fc_x',units=128,activation=tf.nn.relu)
     # net = tf.layers.dense(inputs=net, name='layer_combine_fc_1',units=128,activation=tf.nn.relu)
     # # fully connect 2
-    net = tf.layers.dense(inputs=net, name='layer_combine_fc_y',units=14)
+    net = tf.layers.dense(inputs=net, name='layer_combine_fc_y',units=20)
 
 
     # Logits output of the neural network.
@@ -196,19 +209,13 @@ def model_fn(features, labels, mode, params):
 
 params = {"learning_rate": 1e-4}
 
-choose = "model_cnn1d"
-# choose = "model_cnn1d_2"
-# choose = "model_cnn1d_rnn"
-# choose = "model_dnn"
-# choose = "model_cnn1d_rnn"
-# choose = "model_cnn_rnn_dnn"
-
 model = tf.estimator.Estimator(model_fn=model_fn,
+                               config=trainingConfig,
                                params=params,
-                               model_dir="./checkpoints_"+choose)
+                               model_dir="../../data/checkpoints/checkpoints_%dx%d_" % (pkt_counts, pkt_size) + choose)
 
 # 训练模型
-model.train(input_fn=train_input_fn, steps=40000)
+# model.train(input_fn=train_input_fn, steps=40000)
 
 # 评估模型
 result = model.evaluate (input_fn=test_input_fn)
@@ -226,6 +233,13 @@ init = tf.initialize_all_variables()
 sess.run(init)
 y_true=sess.run(y)
 
-alphabet=["baiduditu","baidutieba","cloudmusic","iqiyi","jingdong","jinritoutiao","meituan","qq","qqmusic","qqyuedu","taobao","weibo","xiecheng","zhihu"]
+print("accuracy_score:",accuracy_score(y_true,predicts))
+print("precision_score:",precision_score(y_true,predicts,average='macro'))
+# print("f1_score_micro:",f1_score(y_true,predicts,average='micro'))
+print("f1_score_macro:",f1_score(y_true,predicts,average='macro'))
+# print("recall_score_micro:",recall_score(y_true,predicts,average='micro'))
+print("recall_score_macro:",recall_score(y_true,predicts,average='macro'))
 # alphabet=["AIM","email","facebookchat","gmailchat","hangoutsaudio","hangoutschat","icqchat","netflix","skypechat","skypefile","spotify","vimeo","youtube","youtubeHTML5"]
+alphabet=softwares=["baiduditu","baidutieba","cloudmusic","iqiyi","jingdong","jinritoutiao","meituan","qq","qqmusic","qqyuedu","taobao","weibo","xiecheng","zhihu","douyin","elema","guotaijunan","QQyouxiang","tenxunxinwen","zhifubao"]
 figures.plot_confusion_matrix(y_true, predicts,alphabet, "./")
+

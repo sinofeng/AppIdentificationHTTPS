@@ -47,6 +47,6 @@ HTTPS_CONFIG={
     "outcome":"../outcome/",
     "result":"../result/",
     "models":"../models/",
-    "ubyte":"../../data/wd_https/ubyte/"
+    "ubyte":"../../data/5_Mnist/"
 
 }

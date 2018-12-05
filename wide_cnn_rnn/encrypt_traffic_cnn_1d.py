@@ -1,35 +1,22 @@
-# Wei Wang (ww8137@mail.ustc.edu.cn)
-#
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this file, You
-# can obtain one at http://mozilla.org/MPL/2.0/.
-# ==============================================================================
-
 import time
 import sys
 import numpy as np
 import os
 
-# load MNIST data
-# import input_data
 from tensorflow.examples.tutorials.mnist import input_data
+
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
 # start tensorflow interactiveSession
 import tensorflow as tf
 import config
+tf.logging.set_verbosity(tf.logging.INFO)
 
-
-# Note: if class numer is 2 or 20, please edit the variable named "num_classes" in /usr/local/lib/python2.7/dist-packages/tensorflow/contrib/learn/python/learn/datasets/mnist.py"
-# DATA_DIR = sys.argv[1]
-# CLASS_NUM = int(sys.argv[2])
-# TRAIN_ROUND = int(sys.argv[3])
 DATA_DIR = config.HTTPS_CONFIG["ubyte"]
-CLASS_NUM = 2
+CLASS_NUM = 20
 TRAIN_ROUND = 40000
 
-dict_2class = {0:'Novpn',1:'Vpn'}
-dict_6class_novpn = {0:'Chat',1:'Email',2:'File',3:'P2p',4:'Streaming',5:'Voip'}
-dict_6class_vpn = {0:'Vpn_Chat',1:'Vpn_Email',2:'Vpn_File',3:'Vpn_P2p',4:'Vpn_Streaming',5:'Vpn_Voip'}
-dict_12class = {0:'Chat',1:'Email',2:'File',3:'P2p',4:'Streaming',5:'Voip',6:'Vpn_Chat',7:'Vpn_Email',8:'Vpn_File',9:'Vpn_P2p',10:'Vpn_Streaming',11:'Vpn_Voip'}
+dict20class={0:"baiduditu",1:"baidutieba",2:"cloudmusic",3:"iqiyi",4:"jingdong",5:"jinritoutiao",6:"meituan",7:"qq",8:"qqmusic",9:"qqyuedu",
+             10:"taobao",11:"weibo",12:"xiecheng",13:"zhihu",14:"douyin",15:"elema",16:"guotaijunan",17:"QQyouxiang",18:"tenxunxinwen",19:"zhifubao"}
 dict = {}
 
 folder = os.path.split(DATA_DIR)[1]
@@ -41,6 +28,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_string('data_dir', DATA_DIR, 'Directory for storing data')
 
 mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+
 
 # function: find a element in a list
 def find_element_in_list(element, list_element):
@@ -102,15 +90,13 @@ h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
 w_fc2 = weight_variable([1024, CLASS_NUM])
 b_fc2 = bias_variable([CLASS_NUM])
 
-# From Site1997: This would cause nan or 0 gradient if "tf.matmul(h_fc1_drop, w_fc2) + b_fc2" is all zero or nan, 
-# so when the training iteration is big enough, all weights could suddenly became 0.
-# Use tf.nn.softmax_cross_entropy_with_logits instead. It handles the extreme case safely.
 y_conv = tf.nn.softmax(tf.matmul(h_fc1_drop, w_fc2) + b_fc2)
 
 tf.nn.softmax_cross_entropy_with_logits(logits=tf.matmul(h_fc1_drop, w_fc2) + b_fc2,labels=y_)
 
 # define var&op of training&testing
 actual_label = tf.argmax(y_, 1)
+
 label,idx,count = tf.unique_with_counts(actual_label)
 cross_entropy = -tf.reduce_sum(y_*tf.log(y_conv))
 train_step = tf.train.GradientDescentOptimizer(1e-4).minimize(cross_entropy)
@@ -118,6 +104,7 @@ predict_label = tf.argmax(y_conv, 1)
 label_p,idx_p,count_p = tf.unique_with_counts(predict_label)
 correct_prediction = tf.equal(predict_label, actual_label)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+
 correct_label=tf.boolean_mask(actual_label,correct_prediction)
 label_c,idx_c,count_c=tf.unique_with_counts(correct_label)
 
@@ -148,18 +135,31 @@ else:
     print("Model restored: " + model)
     
 # evaluate the model
-if CLASS_NUM == 12:
-    dict = dict_12class
-elif CLASS_NUM == 2:
-    dict = dict_2class
-elif CLASS_NUM == 6:
-    if folder.startswith('Novpn'):
-        dict = dict_6class_novpn
-    elif folder.startswith('Vpn'):
-        dict = dict_6class_vpn
+dict = dict20class
 
-label,count,label_p,count_p,label_c,count_c,acc=sess.run([label,count,label_p,count_p,label_c,count_c,accuracy],{x: mnist.test.images, y_: mnist.test.labels, keep_prob:1.0})
+
+print("test:",len(mnist.test.images))
+print("train:",len(mnist.train.images))
+
+label,count,label_p,count_p,label_c,count_c,actual_label,predict_label,acc=sess.run([label,count,label_p,count_p,label_c,count_c,actual_label,predict_label,accuracy],{x: mnist.test.images, y_: mnist.test.labels, keep_prob:1.0})
 acc_list = []
+
+print("label:",label)
+print("count:",count)
+print("label_p:",label_p)
+print("label_c:",label_c)
+print("count_c:",count_c)
+print("acc:",acc)
+print("count_p:",count_p)
+print("actual_label:",actual_label,len(actual_label))
+print("predict_label:",predict_label,len(predict_label))
+
+print("accuracy_score:",accuracy_score(actual_label,predict_label))
+print("Precision:",precision_score(actual_label,predict_label,average='macro'))
+print("Recall:",recall_score(actual_label,predict_label,average='macro'))
+print("F1 score:",f1_score(actual_label,predict_label,average='macro'))
+
+
 for i in range(CLASS_NUM):
     n1 = find_element_in_list(i,label.tolist())
     count_actual = count[n1]
