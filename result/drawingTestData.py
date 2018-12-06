@@ -10,7 +10,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 size = 3
-mymodel = np.asarray([0.9038501894104968,0.9049953957288691,0.9072231710667159])
+mymodel = np.asarray([0.9184840801316903,0.9090443033011008,0.912511745951522])
 baseline = np.asarray([0.88029597255012,0.8750779175862263,0.8768301416163474])
 
 
@@ -32,5 +32,5 @@ for b in b1+b2:
     plt.text(b.get_x()+b.get_width()/2,h,'%0.3f'%float(h),ha='center',va='bottom')
 
 plt.legend()
-plt.savefig("./test.png", format='png')
+plt.savefig("./test.png", format='png',bbox_inches='tight')
 plt.show()

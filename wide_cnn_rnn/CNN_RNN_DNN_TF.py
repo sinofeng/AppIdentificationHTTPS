@@ -18,14 +18,15 @@ path_tfrecords_train="../../data/preprocessed/train_complete_%dx%d.tfrecord"%(pk
 path_tfrecords_test="../../data/preprocessed/test_complete_%dx%d.tfrecord"%(pkt_counts,pkt_size)
 
 
-choose = "model_cnn1d"
+# choose = "model_cnn1d"
 # choose = "model_cnn1d_2"
 # choose = "model_cnn1d_rnn"
 # choose = "model_dnn"
 # choose = "model_cnn1d_rnn"
-# choose = "model_cnn1d_cnn1d_rnn"
+choose = "model_cnn1d_cnn1d_rnn"
 # choose = "model_cnn_rnn_dnn"
 
+train=True
 
 # 定义解析函数
 def parse(serialized):
@@ -115,9 +116,10 @@ def model_fn(features, labels, mode, params):
                           units=128, activation=tf.nn.relu)
     x3 = features["packetStatistic"]
     net3 = tf.layers.batch_normalization(inputs=x3)
-    net3 = tf.layers.dense(inputs=net3,name="layer_dnn_1",units=32,activation=tf.nn.relu)
-    net3 = tf.layers.dense(inputs=net3,name="layer_dnn_2",units=32,activation=tf.nn.relu)
-
+    net3 = tf.layers.dense(inputs=net3,name="layer_dnn_1",units=128,activation=tf.nn.relu)
+    net3 = tf.layers.dropout(inputs=net3,rate=0.2)
+    net3 = tf.layers.dense(inputs=net3,name="layer_dnn_2",units=128,activation=tf.nn.relu)
+    net3 = tf.layers.dropout(inputs=net3,rate=0.2)
     x4 = features["packetLength"]
     x4 = tf.layers.batch_normalization(inputs=x4)
     net4 = tf.reshape(x4, [-1, pkt_counts, 1])
@@ -132,6 +134,7 @@ def model_fn(features, labels, mode, params):
                            filters=32, kernel_size=3,
                            padding='same', activation=tf.nn.relu)
     net4 = tf.layers.max_pooling1d(inputs=net4, pool_size=2, strides=2)
+
     net4 = tf.contrib.layers.flatten(net4)
     net4 = tf.layers.dense(inputs=net4, name='layer_length_fc1',
                           units=128, activation=tf.nn.relu)
@@ -159,6 +162,11 @@ def model_fn(features, labels, mode, params):
     net = tf.layers.dense(inputs=net, name='layer_combine_fc_x',units=128,activation=tf.nn.relu)
     # net = tf.layers.dense(inputs=net, name='layer_combine_fc_1',units=128,activation=tf.nn.relu)
     # # fully connect 2
+    if mode == tf.estimator.ModeKeys.PREDICT:
+        prob = 1.0
+    else:
+        prob =0.8
+    net = tf.layers.dropout(inputs=net,rate=prob)
     net = tf.layers.dense(inputs=net, name='layer_combine_fc_y',units=20)
 
 
@@ -192,7 +200,8 @@ def model_fn(features, labels, mode, params):
             {
                 "accuracy": accuracy
             }
-
+        # 早停机制
+        # early_stopping = tf.contrib.estimator.stop_if_no_decrease_hook()
         logging_hook = tf.train.LoggingTensorHook({"loss": loss,
                                                    "accuracy": accuracy[1]}, every_n_iter=10)
         # Wrap all of this in an EstimatorSpec.
@@ -215,7 +224,10 @@ model = tf.estimator.Estimator(model_fn=model_fn,
                                model_dir="../../data/checkpoints/checkpoints_%dx%d_" % (pkt_counts, pkt_size) + choose)
 
 # 训练模型
-# model.train(input_fn=train_input_fn, steps=40000)
+
+if train:
+    model.train(input_fn=train_input_fn, steps=40000)
+
 
 # 评估模型
 result = model.evaluate (input_fn=test_input_fn)
@@ -240,6 +252,25 @@ print("f1_score_macro:",f1_score(y_true,predicts,average='macro'))
 # print("recall_score_micro:",recall_score(y_true,predicts,average='micro'))
 print("recall_score_macro:",recall_score(y_true,predicts,average='macro'))
 # alphabet=["AIM","email","facebookchat","gmailchat","hangoutsaudio","hangoutschat","icqchat","netflix","skypechat","skypefile","spotify","vimeo","youtube","youtubeHTML5"]
-alphabet=softwares=["baiduditu","baidutieba","cloudmusic","iqiyi","jingdong","jinritoutiao","meituan","qq","qqmusic","qqyuedu","taobao","weibo","xiecheng","zhihu","douyin","elema","guotaijunan","QQyouxiang","tenxunxinwen","zhifubao"]
-figures.plot_confusion_matrix(y_true, predicts,alphabet, "./")
+alphabet=softwares=["Baidu Map",
+                    "Baidu Post Bar",
+                    "Netease cloud music",
+                    "iQIYI",
+                    "Jingdong",
+                    "Jinritoutiao",
+                    "Meituan",
+                    "QQ",
+                    "QQ music",
+                    "QQ reader",
+                    "Taobao",
+                    "Weibo",
+                    "CTRIP",
+                    "Zhihu",
+                    "Tik Tok",
+                    "Ele.me",
+                    "gtja",
+                    "QQ mail",
+                    "Tencent",
+                    "Alipay"]
+figures.plot_confusion_matrix(y_true, predicts,alphabet, "./_%dx%d_"% (pkt_counts, pkt_size) + choose)
 
