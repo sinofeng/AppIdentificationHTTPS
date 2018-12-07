@@ -2,8 +2,7 @@
 #coding=utf-8
 import tensorflow as tf
 from result import figures
-from sklearn.metrics import precision_score,recall_score,f1_score
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score,recall_score,f1_score,accuracy_score
 import sys
 # 打印log
 tf.logging.set_verbosity(tf.logging.INFO)
