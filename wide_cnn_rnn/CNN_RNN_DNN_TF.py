@@ -16,17 +16,21 @@ pkt_size=int(sys.argv[2])
 path_tfrecords_train="../../data/preprocessed/train_complete_%dx%d.tfrecord"%(pkt_counts,pkt_size)
 path_tfrecords_test="../../data/preprocessed/test_complete_%dx%d.tfrecord"%(pkt_counts,pkt_size)
 
+# path_tfrecords_train="../../data/preprocessed/unb_train_complete_%dx%d.tfrecord"%(pkt_counts,pkt_size)
+# path_tfrecords_test="../../data/preprocessed/unb_test_complete_%dx%d.tfrecord"%(pkt_counts,pkt_size)
 
-# choose = "model_cnn1d"
-# choose = "model_cnn1d_2"
+
+choose = "model_cnn1d"
+# choose = "model_cnn1d_cnn1d"
 # choose = "model_cnn1d_rnn"
 # choose = "model_dnn"
 # choose = "model_cnn1d_rnn"
-choose = "model_cnn1d_cnn1d_rnn"
+# choose = "model_cnn1d_cnn1d_rnn"
 # choose = "model_cnn_rnn_dnn"
 
 train=True
-
+steps=80000
+learning_rate=1e-3
 # 定义解析函数
 def parse(serialized):
     features = {
@@ -79,6 +83,7 @@ def train_input_fn():
 # 测试batch
 def test_input_fn():
     return input_fn(filenames=path_tfrecords_test, train=False,batch_size=5000)
+    # return input_fn(filenames=path_tfrecords_test, train=False,batch_size=500)
 
 # 定义模型
 def model_fn(features, labels, mode, params):
@@ -91,12 +96,14 @@ def model_fn(features, labels, mode, params):
     net1 = tf.layers.conv1d(inputs=net1, name='layer_conv1',
                            filters=32, kernel_size=3,
                            padding='same', activation=tf.nn.relu)
-    net1 = tf.layers.max_pooling1d(inputs=net1, pool_size=2, strides=2)
+    net1 = tf.layers.max_pooling1d(inputs=net1, pool_size=3,strides=1)
+    # net1 = tf.layers.max_pooling1d(inputs=net1, pool_size=2, strides=2)
 
     net1 = tf.layers.conv1d(inputs=net1, name='layer_conv2',
                            filters=32, kernel_size=3,
                            padding='same', activation=tf.nn.relu)
-    net1 = tf.layers.max_pooling1d(inputs=net1, pool_size=2, strides=2)
+    net1 = tf.layers.max_pooling1d(inputs=net1, pool_size=3,strides=1)
+    # net1 = tf.layers.max_pooling1d(inputs=net1, pool_size=2, strides=2)
     net1 = tf.contrib.layers.flatten(net1)
     net1 = tf.layers.dense(inputs=net1, name='layer_fc1',
                           units=128, activation=tf.nn.relu)
@@ -109,8 +116,10 @@ def model_fn(features, labels, mode, params):
 
     net2 = tf.nn.embedding_lookup(word_embeddings, net2)
     # Rnn
-    rnn_cell=tf.nn.rnn_cell.BasicRNNCell(64)
+    rnn_cell=tf.nn.rnn_cell.BasicRNNCell(16)
+    # rnn_cell=tf.nn.rnn_cell.BasicRNNCell(64)
     output, states = tf.nn.dynamic_rnn(rnn_cell, net2, dtype=tf.float32)
+
     net2 = tf.layers.dense(inputs=output[:,-1,:], name='layer_rnn_fc_1',
                           units=128, activation=tf.nn.relu)
     x3 = features["packetStatistic"]
@@ -139,7 +148,7 @@ def model_fn(features, labels, mode, params):
                           units=128, activation=tf.nn.relu)
     if choose == "model_cnn1d":
         net = tf.layers.dense(inputs=net1, name='layer_combine_fc_cnn1d', units=128, activation=tf.nn.relu)
-    if choose == "model_cnn1d_2":
+    if choose == "model_cnn1d_cnn1d":
         net = tf.concat([net1,net4],1)
     if choose == "model_cnn1d_rnn":
         net = tf.concat([net1,net2],1)
@@ -167,6 +176,7 @@ def model_fn(features, labels, mode, params):
         prob =0.8
     net = tf.layers.dropout(inputs=net,rate=prob)
     net = tf.layers.dense(inputs=net, name='layer_combine_fc_y',units=20)
+    # net = tf.layers.dense(inputs=net, name='layer_combine_fc_y',units=14)
 
 
     # Logits output of the neural network.
@@ -215,17 +225,17 @@ def model_fn(features, labels, mode, params):
     return spec
 
 
-params = {"learning_rate": 1e-4}
+params = {"learning_rate": learning_rate}
 
 model = tf.estimator.Estimator(model_fn=model_fn,
                                config=trainingConfig,
                                params=params,
-                               model_dir="../../data/checkpoints/checkpoints_%dx%d_" % (pkt_counts, pkt_size) + choose)
+                               model_dir="../../data/checkpoints/checkpoints_%dx%d" % (pkt_counts, pkt_size) + choose)
 
 # 训练模型
 
 if train:
-    model.train(input_fn=train_input_fn, steps=40000)
+    model.train(input_fn=train_input_fn, steps=steps)
 
 
 # 评估模型
@@ -271,5 +281,5 @@ alphabet=softwares=["Baidu Map",
                     "QQ mail",
                     "Tencent",
                     "Alipay"]
-figures.plot_confusion_matrix(y_true, predicts,alphabet, "./_%dx%d_"% (pkt_counts, pkt_size) + choose)
+figures.plot_confusion_matrix(y_true, predicts,alphabet, "./%dx%d_"% (pkt_counts, pkt_size) + choose)
 

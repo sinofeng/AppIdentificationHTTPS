@@ -29,11 +29,11 @@ params={
 }
 
 plst = list(params.items())
-num_rounds = 5000 # 迭代次数
+num_rounds = 50 # 迭代次数
 train_data,train_labels,test_data,test_labels=input_w.inputs()
 
-xgb_train=xgb.DMatrix(train_data[5000:],label=train_labels[5000:])
-xgb_val=xgb.DMatrix(train_data[:5000],train_labels[:5000])
+xgb_train=xgb.DMatrix(train_data[500:],label=train_labels[500:])
+xgb_val=xgb.DMatrix(train_data[:500],train_labels[:500])
 xgb_test=xgb.DMatrix(test_data)
 
 
@@ -72,4 +72,4 @@ alphabet=softwares=["Baidu Map",
                     "QQ mail",
                     "Tencent",
                     "Alipay"]
-figures.plot_confusion_matrix(test_labels, preds,alphabet, "./xgb")
+figures.plot_confusion_matrix(test_labels, preds,alphabet, "./xgb_finetune_")

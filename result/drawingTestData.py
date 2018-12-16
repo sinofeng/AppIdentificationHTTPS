@@ -24,8 +24,8 @@ x = x - (total_width - width) / 2
 plt.figure(figsize=(8, 6.5))
 plt.grid(True, ls='--')
 plt.ylim(0.5,1)
-b1=plt.bar(x, mymodel,  width=width, label='mymodel')
-b2=plt.bar(x + width, baseline, width=width, label='baseline')
+b1=plt.bar(x, mymodel,  width=width, label='CRC')
+b2=plt.bar(x + width, baseline, width=width, label='784-1D-CNN')
 plt.xticks(x+width/2,["Precision","Recall","F1"])
 for b in b1+b2:
     h=b.get_height()
