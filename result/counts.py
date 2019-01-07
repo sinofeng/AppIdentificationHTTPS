@@ -46,9 +46,9 @@ count_higher_16=sum(length_count_higher_16)
 #        title = "packet numbers of a flow")
 # plt.show()
 
-labels = ['Packet Numbers:>16', 'Packet Numbers:<=16']
+labels = ['Packet Counts:>16', 'Packet Counts:<=16']
 sizes = [count_higher_16,count_lower_16]
-colors = ['lightcoral', 'yellowgreen']
+colors = ['#B1DAEF','#C0DFB0']
 explode = (0.05, 0)  # explode 1st slice
 plt.figure(figsize=(8, 6))
 # Plot

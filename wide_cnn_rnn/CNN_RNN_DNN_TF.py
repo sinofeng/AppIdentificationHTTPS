@@ -51,7 +51,7 @@ def parse(serialized):
     return recordTypes, packetLength, packetPayload, packetStatistic, label
 
 # 定义输入函数
-def input_fn(filenames, train, batch_size=32, buffer_size=2048):
+def input_fn(filenames, train, batch_size=128, buffer_size=2048):
 
     dataset = tf.data.TFRecordDataset(filenames=filenames)
     dataset = dataset.map(parse)
@@ -87,7 +87,10 @@ def test_input_fn():
 
 # 定义模型
 def model_fn(features, labels, mode, params):
-
+    if mode == tf.estimator.ModeKeys.PREDICT:
+        prob = 1.0
+    else:
+        prob =0.8
     x1 = features["packetPayload"]
     x1 = tf.layers.batch_normalization(inputs=x1)
     net1 = tf.reshape(x1, [-1, pkt_counts*pkt_size, 1])
@@ -158,22 +161,16 @@ def model_fn(features, labels, mode, params):
         net = tf.concat([net1,net2,net4],1)
     if choose == "model_cnn_rnn_dnn":
         net = tf.concat([net1,net2,net3,net4],1)
-    # net = tf.concat([net1,net2,net3],1)
-    # print(net.shape)
-    # # Attention
-    # attention_probs = tf.layers.dense(inputs=net,  name="attention_probs",units=288,activation='softmax')
+    print(net.shape)
+    # # # Attention
+    # attention_probs = tf.layers.dense(inputs=net,  name="attention_probs",units=net.shape[1],activation='softmax')
     # net=tf.multiply(net,attention_probs)
     # print("net.shape:",net.shape)
-    # fully connect 1
+    # # fully connect 1
     # net = tf.layers.dense(inputs=net, name='layer_combine_fc_x',units=128,activation=tf.nn.relu)
-    # net = tf.layers.batch_normalization(inputs=x3)
-    net = tf.layers.dense(inputs=net, name='layer_combine_fc_x',units=128,activation=tf.nn.relu)
     # net = tf.layers.dense(inputs=net, name='layer_combine_fc_1',units=128,activation=tf.nn.relu)
-    # # fully connect 2
-    if mode == tf.estimator.ModeKeys.PREDICT:
-        prob = 1.0
-    else:
-        prob =0.8
+    # # # fully connect 2
+
     net = tf.layers.dropout(inputs=net,rate=prob)
     net = tf.layers.dense(inputs=net, name='layer_combine_fc_y',units=20)
     # net = tf.layers.dense(inputs=net, name='layer_combine_fc_y',units=14)

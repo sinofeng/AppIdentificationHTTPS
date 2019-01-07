@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<timeline>
+  <version>1.18.0 (79f839faeb70 2018-07-31)</version>
+  <timetype>gregoriantime</timetype>
+  <categories>
+  </categories>
+  <events>
+    <event>
+      <start>2019-02-28 00:00:00</start>
+      <end>2019-04-26 00:00:00</end>
+      <text>Trustcom(attention)</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>The 18th IEEE International Conference on Trust, Security and Privacy in Computing and Communications</description>
+      <alert>2019-02-28 00:00:00;egerent</alert>
+      <default_color>255,0,0</default_color>
+    </event>
+    <event>
+      <start>2018-12-31 00:00:00</start>
+      <end>2019-01-31 00:00:00</end>
+      <text>ICT 2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <alert>2018-12-28 00:00:00;必须提交论文!!!</alert>
+      <default_color>0,128,0</default_color>
+    </event>
+    <event>
+      <start>2019-01-22 00:00:00</start>
+      <end>2019-03-22 00:00:00</end>
+      <text>ACNS2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>ACNS 2019 : International Conference on Applied Cryptography and Network Security</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-01-15 00:00:00</start>
+      <end>2019-04-02 00:00:00</end>
+      <text>ACM ASIACCS</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>The 14th ACM ASIA Conference on Computer and Communications Security</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-01-11 00:00:00</start>
+      <end>2019-03-22 00:00:00</end>
+      <text>MDM(数据库C) 2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>20th IEEE International Conference on Mobile Data Management</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-01-14 00:00:00</start>
+      <end>2019-03-04 00:00:00</end>
+      <text>CF(体系结构C) 2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>ACM International Conference on Computing Frontiers 2019</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-04-01 00:00:00</start>
+      <end>2019-09-01 00:00:00</end>
+      <text>GLOBECOM(计算机网络C,本年有国科大老师 2019)</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>Global Communications Conference</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-01-18 00:00:00</start>
+      <end>2019-03-01 00:00:00</end>
+      <text>ACM WiSec 2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>False</locked>
+      <ends_today>False</ends_today>
+      <description>12th ACM Conference on Security and Privacy in Wireless and Mobile Networks,特别注意在一月18号之前查看trustcom是否延期!!!且当前没有延期的话投WiSec!!!</description>
+      <default_color>0,0,255</default_color>
+    </event>
+    <event>
+      <start>2019-02-10 00:00:00</start>
+      <end>2019-04-08 00:00:00</end>
+      <text>SACMAT 2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>24th ACM Symposium on Access Control Models and Technologies</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-03-15 00:00:00</start>
+      <end>2019-05-15 00:00:00</end>
+      <text>IWSEC(补充C) 2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>The 14th International Workshop on Security</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-02-15 00:00:00</start>
+      <end>2019-04-01 00:00:00</end>
+      <text>ACISP 2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>The 24th Australasian Conference on Information Security and Privacy</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-03-01 00:00:00</start>
+      <end>2019-04-26 00:00:00</end>
+      <text>ICCCN(计算机网络C) 2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>International Conference on Computer Communications and Networks</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-05-10 00:00:00</start>
+      <end>2019-06-30 00:00:00</end>
+      <text>SecureComm</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>安全类重要相关!!!</description>
+      <default_color>128,0,128</default_color>
+    </event>
+    <event>
+      <start>2019-05-03 00:00:00</start>
+      <end>2019-07-05 00:00:00</end>
+      <text> (LCN)Local	Computer	Networks</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>44th Annual	IEEE	Conference	on	Local	Computer	Networks</description>
+      <default_color>211,211,211</default_color>
+    </event>
+    <event>
+      <start>2019-02-28 00:00:00</start>
+      <end>2019-05-14 00:00:00</end>
+      <text>SOUPS 2019</text>
+      <progress>0</progress>
+      <fuzzy>False</fuzzy>
+      <locked>True</locked>
+      <ends_today>False</ends_today>
+      <description>SOUPS 2019: Fifteenth Symposium on Usable Privacy and Security</description>
+      <default_color>211,211,211</default_color>
+    </event>
+  </events>
+  <view>
+    <displayed_period>
+      <start>2018-10-16 21:07:53</start>
+      <end>2019-05-24 14:24:51</end>
+    </displayed_period>
+    <hidden_categories>
+    </hidden_categories>
+  </view>
+</timeline>
