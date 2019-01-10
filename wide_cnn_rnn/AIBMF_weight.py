@@ -11,6 +11,8 @@ import tensorflow as tf
 from result import figures
 from sklearn.metrics import precision_score,recall_score,f1_score,accuracy_score
 import sys
+import numpy as np
+np.random.seed(2019)
 # 打印log
 tf.logging.set_verbosity(tf.logging.INFO)
 config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.5))
@@ -111,12 +113,15 @@ def model_fn(features, labels, mode, params):
     net1 = tf.contrib.layers.flatten(net1)
     net1 = tf.layers.dense(inputs=net1, name='layer_fc1',
                           units=64, activation=tf.nn.relu)
+    net1 = tf.layers.dense(inputs=net1, name="payload",units=16)
 
     x2 = features["recordTypes"]
     net2 = tf.reshape(x2,[-1,pkt_counts])
     # Embedding
     word_embeddings = tf.get_variable("word_embeddings",[257, 32])
     net2 = tf.nn.embedding_lookup(word_embeddings, net2)
+
+    # https://www.cnblogs.com/zyly/p/9029591.html
     # # Rnn
     # rnn_cell=tf.nn.rnn_cell.BasicRNNCell(16)
     # output, states = tf.nn.dynamic_rnn(rnn_cell, net2, dtype=tf.float32)
@@ -129,9 +134,10 @@ def model_fn(features, labels, mode, params):
 
     # net2 = tf.layers.dense(inputs=output[:,-1,:], name='layer_rnn_fc_1',
     #                       units=64, activation=tf.nn.relu)
-    net2 = tf.layers.dense(inputs=output[:,-1,:], name='layer_rnn_weight',
-                          units=64, activation=tf.nn.softmax)
-
+    net2 = tf.layers.dense(inputs=output[:,-1,:], name='layer_rnn_fc_1',
+                          units=64, activation=tf.nn.relu)
+    net2 = tf.layers.dense(inputs=net2,name='layer_rnn_weight',
+                           units=16,activation=tf.nn.softmax)
     net=tf.multiply(net1,net2)
 
     print(net.shape)
@@ -193,7 +199,7 @@ params = {"learning_rate": learning_rate}
 model = tf.estimator.Estimator(model_fn=model_fn,
                                config=trainingConfig,
                                params=params,
-                               model_dir="../../data/checkpoints/approximateAttention")
+                               model_dir="../../data/checkpoints/approximateAttention_weight")
 
 # 训练模型
 
@@ -208,7 +214,7 @@ print(result)
 # 模型预测
 predicts=model.predict(input_fn=test_input_fn,predict_keys=["y_pred_cls"])
 print(predicts)
-predicts=[p for p in predicts]
+predicts=[p['y_pred_cls'] for p in predicts]
 print(predicts)
 
 _,y=test_input_fn()
@@ -248,6 +254,7 @@ figures.plot_confusion_matrix(y_true, predicts,alphabet, "./%dx%d_"% (pkt_counts
 
 # 打印weight
 weights=model.predict(input_fn=test_input_fn,predict_keys=["layer_rnn_weight"])
+weights=[w['layer_rnn_weight'] for w in weights]
 for weight in weights[:10]:
     print(weight)
     print("\n")
