@@ -30,7 +30,7 @@ path_tfrecords_test="../../data/preprocessed/test_complete_%dx%d.tfrecord"%(pkt_
 choose = "approximate_attention"
 
 train=True
-steps=80000
+steps=10000
 learning_rate=1e-3
 # 定义解析函数
 def parse(serialized):
@@ -52,7 +52,7 @@ def parse(serialized):
     return recordTypes, packetLength, packetPayload, packetStatistic, label
 
 # 定义输入函数
-def input_fn(filenames, train, batch_size=128, buffer_size=2048):
+def input_fn(filenames, train, batch_size=32, buffer_size=2048):
 
     dataset = tf.data.TFRecordDataset(filenames=filenames)
     dataset = dataset.map(parse)
@@ -117,10 +117,15 @@ def model_fn(features, labels, mode, params):
     # Embedding
     word_embeddings = tf.get_variable("word_embeddings",[257, 32])
     net2 = tf.nn.embedding_lookup(word_embeddings, net2)
-    # Rnn
-    rnn_cell=tf.nn.rnn_cell.BasicRNNCell(16)
-    # rnn_cell=tf.nn.rnn_cell.BasicRNNCell(64)
-    output, states = tf.nn.dynamic_rnn(rnn_cell, net2, dtype=tf.float32)
+    # # Rnn
+    # rnn_cell=tf.nn.rnn_cell.BasicRNNCell(16)
+    # output, states = tf.nn.dynamic_rnn(rnn_cell, net2, dtype=tf.float32)
+    # # LSTM
+    # lstm=tf.contrib.rnn.BasicLSTMCell(num_units = 16)
+    # output, last_states = tf.nn.dynamic_rnn(lstm, net2, dtype=tf.float32)
+    # GRU
+    gru = tf.contrib.rnn.GRUCell(num_units=16)
+    output, last_states = tf.nn.dynamic_rnn(gru, net2, dtype=tf.float32)
 
     net2 = tf.layers.dense(inputs=output[:,-1,:], name='layer_rnn_fc_1',
                           units=64, activation=tf.nn.relu)
