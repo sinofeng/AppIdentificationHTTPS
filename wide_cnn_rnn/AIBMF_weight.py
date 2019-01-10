@@ -3,9 +3,9 @@
 """
 @author: TianMao
 @contact: tianmao1994@yahoo.com
-@file: AIBMF.py
-@time: 19-1-7 上午10:49
-@desc: 将content type作为权重,和卷积的计算结果相乘(参考attention机制)
+@file: AIBMF_weight.py
+@time: 19-1-10 上午9:43
+@desc: 在预测的时候输出中间结果,绘制出heatmap
 """
 import tensorflow as tf
 from result import figures
@@ -127,8 +127,11 @@ def model_fn(features, labels, mode, params):
     gru = tf.contrib.rnn.GRUCell(num_units=16)
     output, last_states = tf.nn.dynamic_rnn(gru, net2, dtype=tf.float32)
 
-    net2 = tf.layers.dense(inputs=output[:,-1,:], name='layer_rnn_fc_1',
-                          units=64, activation=tf.nn.relu)
+    # net2 = tf.layers.dense(inputs=output[:,-1,:], name='layer_rnn_fc_1',
+    #                       units=64, activation=tf.nn.relu)
+    net2 = tf.layers.dense(inputs=output[:,-1,:], name='layer_rnn_weight',
+                          units=64, activation=tf.nn.softmax)
+
     net=tf.multiply(net1,net2)
 
     print(net.shape)
@@ -145,8 +148,12 @@ def model_fn(features, labels, mode, params):
     y_pred_cls = tf.argmax(y_pred, axis=1)
 
     if mode == tf.estimator.ModeKeys.PREDICT:
+        predictions={
+            'layer_rnn_weight':net2,
+            'y_pred_cls':y_pred_cls
+        }
         spec = tf.estimator.EstimatorSpec(mode=mode,
-                                          predictions=y_pred_cls)
+                                          predictions=predictions)
     else:
 
         cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels,
@@ -199,7 +206,7 @@ result = model.evaluate (input_fn=test_input_fn)
 print(result)
 
 # 模型预测
-predicts=model.predict(input_fn=test_input_fn)
+predicts=model.predict(input_fn=test_input_fn,predict_keys=["y_pred_cls"])
 print(predicts)
 predicts=[p for p in predicts]
 print(predicts)
@@ -238,3 +245,9 @@ alphabet=softwares=["Baidu Map",
                     "Tencent",
                     "Alipay"]
 figures.plot_confusion_matrix(y_true, predicts,alphabet, "./%dx%d_"% (pkt_counts, pkt_size) + choose)
+
+# 打印weight
+weights=model.predict(input_fn=test_input_fn,predict_keys=["layer_rnn_weight"])
+for weight in weights[:10]:
+    print(weight)
+    print("\n")
