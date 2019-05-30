@@ -8,7 +8,8 @@ import numpy as np
 def plot_confusion_matrix(y_true, y_pred, labels, save_path,font_size=8):
     tick_marks = np.array(range(len(labels))) + 0.5
     # 配色:https://matplotlib.org/examples/color/colormaps_reference.html
-    def plot(cm, title='Confusion Matrix', cmap=plt.cm.YlGn):
+    # def plot(cm, title='Confusion Matrix', cmap=plt.cm.YlGn):
+    def plot(cm, title='Confusion Matrix', cmap=plt.cm.Greys):
         plt.imshow(cm, interpolation='nearest', cmap=cmap)
         plt.title(title)
         plt.colorbar()

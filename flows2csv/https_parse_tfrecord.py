@@ -135,8 +135,8 @@ def convert(pcap_files, out_path):
 
 def parse(serialized):
     features = {
-        'recordTypes': tf.FixedLenFeature([64], tf.int64),
-        'packetLength': tf.FixedLenFeature([64], tf.int64),
+        'recordTypes': tf.FixedLenFeature([16], tf.int64),
+        'packetLength': tf.FixedLenFeature([16], tf.int64),
         'packetPayload': tf.FixedLenFeature([1024], tf.int64),
         'label': tf.FixedLenFeature([], tf.int64)
     }

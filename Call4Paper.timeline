@@ -25,7 +25,6 @@
       <fuzzy>False</fuzzy>
       <locked>True</locked>
       <ends_today>False</ends_today>
-      <alert>2018-12-28 00:00:00;必须提交论文!!!</alert>
       <default_color>0,128,0</default_color>
     </event>
     <event>
@@ -174,8 +173,8 @@
   </events>
   <view>
     <displayed_period>
-      <start>2018-10-16 21:07:53</start>
-      <end>2019-05-24 14:24:51</end>
+      <start>2018-12-09 20:07:48</start>
+      <end>2019-04-26 01:12:33</end>
     </displayed_period>
     <hidden_categories>
     </hidden_categories>

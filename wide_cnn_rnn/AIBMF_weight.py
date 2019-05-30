@@ -31,7 +31,7 @@ path_tfrecords_test="../../data/preprocessed/test_complete_%dx%d.tfrecord"%(pkt_
 
 choose = "approximate_attention"
 
-train=True
+train=False
 steps=40000
 learning_rate=1e-3
 # 定义解析函数

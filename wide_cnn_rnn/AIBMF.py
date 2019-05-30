@@ -18,7 +18,7 @@ trainingConfig = tf.estimator.RunConfig(session_config=config)
 # 数据路径
 
 pkt_counts=16
-pkt_size=64
+pkt_size=96
 
 path_tfrecords_train="../../data/preprocessed/train_complete_%dx%d.tfrecord"%(pkt_counts,pkt_size)
 path_tfrecords_test="../../data/preprocessed/test_complete_%dx%d.tfrecord"%(pkt_counts,pkt_size)
@@ -29,8 +29,8 @@ path_tfrecords_test="../../data/preprocessed/test_complete_%dx%d.tfrecord"%(pkt_
 
 choose = "approximate_attention"
 
-train=True
-steps=40000
+train=False
+steps=500
 learning_rate=1e-3
 # 定义解析函数
 def parse(serialized):
@@ -51,10 +51,12 @@ def parse(serialized):
     label = parsed_example['label']
     return recordTypes, packetLength, packetPayload, packetStatistic, label
 
+
 # 定义输入函数
 def input_fn(filenames, train, batch_size=32, buffer_size=2048):
 
     dataset = tf.data.TFRecordDataset(filenames=filenames)
+    # parse
     dataset = dataset.map(parse)
 
     if train:
@@ -66,8 +68,10 @@ def input_fn(filenames, train, batch_size=32, buffer_size=2048):
     dataset = dataset.batch(batch_size)
     iterator = dataset.make_one_shot_iterator()
     recordTypes_batch, packetLength_batch, packetPayload_batch,packetStatistic_batch, label_batch= iterator.get_next()
+
     packetPayload_batch=tf.cast(packetPayload_batch,tf.float32)
     packetLength_batch=tf.cast(packetLength_batch,tf.float32)
+
     x = {"recordTypes":recordTypes_batch,
          "packetLength":packetLength_batch,
          "packetPayload":packetPayload_batch,
@@ -86,7 +90,18 @@ def test_input_fn():
     return input_fn(filenames=path_tfrecords_test, train=False,batch_size=5000)
     # return input_fn(filenames=path_tfrecords_test, train=False,batch_size=500)
 
+a=test_input_fn()
+
+print("------------------------------------------------------------------------------")
+print(a[0]["recordTypes"])
+print(a[0]["packetLength"])
+print(a[0]["packetPayload"])
+print(a[0]["packetStatistic"])
+print(a[1])
+print("------------------------------------------------------------------------------")
+
 # 定义模型
+# 模型输入的是一个字典,输入的直接是Tensor
 def model_fn(features, labels, mode, params):
     if mode == tf.estimator.ModeKeys.PREDICT:
         prob = 1.0
@@ -194,15 +209,28 @@ if train:
     model.train(input_fn=train_input_fn, steps=steps)
 
 
+
+def serving_input_receiver_fn():
+    features,_=test_input_fn()
+    return tf.estimator.export.ServingInputReceiver(features, features)
+
+
+# 保存模型,供其他的语言load
+model.export_saved_model("../../data/checkpoints/saved_model",serving_input_receiver_fn)
+
+
 # 评估模型
 result = model.evaluate (input_fn=test_input_fn)
 print(result)
 
 # 模型预测
 predicts=model.predict(input_fn=test_input_fn)
+
+print("===================================================================")
 print(predicts)
 predicts=[p for p in predicts]
 print(predicts)
+print("===================================================================")
 
 _,y=test_input_fn()
 sess = tf.Session()
