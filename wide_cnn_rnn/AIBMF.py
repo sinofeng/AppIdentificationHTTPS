@@ -32,8 +32,11 @@ choose = "approximate_attention"
 train=False
 steps=500
 learning_rate=1e-3
+
+
 # 定义解析函数
 def parse(serialized):
+
     features = {
         'recordTypes': tf.FixedLenFeature([pkt_counts], tf.int64),
         'packetLength': tf.FixedLenFeature([pkt_counts], tf.int64),
@@ -66,7 +69,9 @@ def input_fn(filenames, train, batch_size=32, buffer_size=2048):
         num_repeat = 1
     dataset = dataset.repeat(num_repeat)
     dataset = dataset.batch(batch_size)
+
     iterator = dataset.make_one_shot_iterator()
+
     recordTypes_batch, packetLength_batch, packetPayload_batch,packetStatistic_batch, label_batch= iterator.get_next()
 
     packetPayload_batch=tf.cast(packetPayload_batch,tf.float32)
@@ -84,7 +89,6 @@ def input_fn(filenames, train, batch_size=32, buffer_size=2048):
 def train_input_fn():
     return input_fn(filenames=path_tfrecords_train, train=True)
 
-
 # 测试batch
 def test_input_fn():
     return input_fn(filenames=path_tfrecords_test, train=False,batch_size=5000)
@@ -92,7 +96,10 @@ def test_input_fn():
 
 a=test_input_fn()
 
+
 print("------------------------------------------------------------------------------")
+print(a)
+print(a[0])
 print(a[0]["recordTypes"])
 print(a[0]["packetLength"])
 print(a[0]["packetPayload"])
@@ -103,6 +110,8 @@ print("-------------------------------------------------------------------------
 # 定义模型
 # 模型输入的是一个字典,输入的直接是Tensor
 def model_fn(features, labels, mode, params):
+
+    # 需要定义程序的入口
     if mode == tf.estimator.ModeKeys.PREDICT:
         prob = 1.0
     else:
@@ -110,7 +119,6 @@ def model_fn(features, labels, mode, params):
     x1 = features["packetPayload"]
     x1 = tf.layers.batch_normalization(inputs=x1)
     net1 = tf.reshape(x1, [-1, pkt_counts*pkt_size, 1])
-
     # First convolutional layer.
     net1 = tf.layers.conv1d(inputs=net1, name='layer_conv1',
                            filters=32, kernel_size=3,
@@ -128,6 +136,7 @@ def model_fn(features, labels, mode, params):
                           units=64, activation=tf.nn.relu)
 
     x2 = features["recordTypes"]
+
     net2 = tf.reshape(x2,[-1,pkt_counts])
     # Embedding
     word_embeddings = tf.get_variable("word_embeddings",[257, 32])
@@ -203,17 +212,23 @@ model = tf.estimator.Estimator(model_fn=model_fn,
                                params=params,
                                model_dir="../../data/checkpoints/approximateAttention")
 
-# 训练模型
-
+# 训练模型,训练的时候才会导入数据
 if train:
     model.train(input_fn=train_input_fn, steps=steps)
-
 
 
 def serving_input_receiver_fn():
     features,_=test_input_fn()
     return tf.estimator.export.ServingInputReceiver(features, features)
 
+def serving_input_receiver_fn():
+    feature_spec = {
+        'recordTypes': tf.placeholder(shape=[None, pkt_counts], dtype=tf.int64),
+        'packetLength': tf.placeholder(shape=[None, pkt_counts], dtype=tf.int64),
+        'packetPayload': tf.placeholder(shape=[None,pkt_counts * pkt_size], dtype=tf.float32),
+        'packetStatistic': tf.placeholder(shape=[None, 24], dtype=tf.float32),
+    }
+    return tf.estimator.export.ServingInputReceiver(feature_spec,feature_spec)
 
 # 保存模型,供其他的语言load
 model.export_saved_model("../../data/checkpoints/saved_model",serving_input_receiver_fn)

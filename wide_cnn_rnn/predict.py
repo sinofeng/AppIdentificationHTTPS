@@ -98,48 +98,9 @@ with tf.Session(graph=tf.Graph()) as sess:
     print("success")
 
 from tensorflow.contrib import predictor
+# 可以在这里指定输出的具体层数!在网络中设置一个键值,在进行预测的时候直接取值进行预测!
+# 如:需要指定拿到概率值!
 predict_fn=predictor.from_saved_model(export_dir)
 predicts=predict_fn({"packetPayload":[[0]*1536],"recordTypes":[[9]*16]})
 
 print(predicts['output'])
-
-# # 模型预测
-# predicts=model.predict(input_fn=test_input_fn)
-# print(predicts)
-# predicts=[p for p in predicts]
-# print(predicts)
-#
-# _,y=test_input_fn()
-# sess = tf.Session()
-# init = tf.initialize_all_variables()
-# sess.run(init)
-# y_true=sess.run(y)
-#
-# print("accuracy_score:",accuracy_score(y_true,predicts))
-# print("precision_score:",precision_score(y_true,predicts,average='macro'))
-# # print("f1_score_micro:",f1_score(y_true,predicts,average='micro'))
-# print("f1_score_macro:",f1_score(y_true,predicts,average='macro'))
-# # print("recall_score_micro:",recall_score(y_true,predicts,average='micro'))
-# print("recall_score_macro:",recall_score(y_true,predicts,average='macro'))
-# # alphabet=["AIM","email","facebookchat","gmailchat","hangoutsaudio","hangoutschat","icqchat","netflix","skypechat","skypefile","spotify","vimeo","youtube","youtubeHTML5"]
-# alphabet=softwares=["Baidu Map",
-#                     "Baidu Post Bar",
-#                     "Netease cloud music",
-#                     "iQIYI",
-#                     "Jingdong",
-#                     "Jinritoutiao",
-#                     "Meituan",
-#                     "QQ",
-#                     "QQ music",
-#                     "QQ reader",
-#                     "Taobao",
-#                     "Weibo",
-#                     "CTRIP",
-#                     "Zhihu",
-#                     "Tik Tok",
-#                     "Ele.me",
-#                     "gtja",
-#                     "QQ mail",
-#                     "Tencent",
-#                     "Alipay"]
-# figures.plot_confusion_matrix(y_true, predicts,alphabet, "./%dx%d_"% (pkt_counts, pkt_size) + choose)
