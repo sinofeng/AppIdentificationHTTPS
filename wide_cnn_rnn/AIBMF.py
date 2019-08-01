@@ -222,6 +222,7 @@ def serving_input_receiver_fn():
     return tf.estimator.export.ServingInputReceiver(features, features)
 
 def serving_input_receiver_fn():
+    # 定义输入接口
     feature_spec = {
         'recordTypes': tf.placeholder(shape=[None, pkt_counts], dtype=tf.int64),
         'packetLength': tf.placeholder(shape=[None, pkt_counts], dtype=tf.int64),
