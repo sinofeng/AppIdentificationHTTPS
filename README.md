@@ -111,6 +111,10 @@ def convert(pcap_files, out_path):
 
 ![](./images/confusematrix.png)
 
+- 使用传统的统计特征+机器学习
+
+![](./images/ml.png)
+
 - 与baseline对比
 
 ![](./images/comparation.png)
