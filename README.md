@@ -47,12 +47,78 @@
 
 ## 3.预处理，统计特征
 
+- TFRecord格式文件
 
+提取了一条流的前16个packet进行处理，分别提取content type，payload，packet size，将结果存储为TFrecord。格式如下：
+
+```python
+def wrap_int64(value):
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
+def wrap_array(value):
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
+def wrap_bytes(value):
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+
+def convert(pcap_files, out_path):
+    print("Converting: " + out_path)
+    num = len(pcap_files)
+    with tf.python_io.TFRecordWriter(out_path) as writer:
+        i=0
+        for pacp_file in pcap_files:
+            print_progress(i, num)
+            recordTypes, packetLength, packetPayload, label = packet_parse(pacp_file)
+            example = tf.train.Example(features=tf.train.Features(
+                feature={'recordTypes': wrap_array(recordTypes),
+                         'packetLength': wrap_array(packetLength),
+                         'packetPayload': wrap_array(packetPayload),
+                         'label': wrap_int64(label)
+                         }))
+            serialized = example.SerializeToString()
+            writer.write(serialized)
+            i = i + 1
+```
+
+- 使用scapy包提取HTTPS流对应的统计特征，主要是对处理了time和zise相关的统计特征（均值，中值，方差等），如下图：
+
+![](./images/features.png)
 
 ## 4. 深度学习模型，识别任务
 
-![模型架构](./images/graph.png)
+- 使用一维卷积神经网络处理Payload
+- 对content type进行embedding，之后输入RNN，LSTM，GRU
+- 对packet length使用一维卷积神经网络提取特征
+- 综合三个视角的抽象特征，完成识别任务
+
+![模型架构](./images/model.png)
 
 ## 5.实验
 
+- 确定超参数：一条流的packet数目，每一个packet的payload部分使用的字节数
+
+  - packet数目（对10万条流进行统计）
+
+    ![](./images/pkts_count.png)
+
+  - 每一条流使用16个packet包，使用对比实验，每一个packet分别取不同数目的payload进行实验
+
+  ![](./images/pkt_size_acc.png)
+
+- 训练模型
+
+  ![](./images/acc_loss.png)
+
+- 针对20个应用进行识别(混淆矩阵)
+
+![](./images/confusematrix.png)
+
+- 与baseline对比
+
+![](./images/comparation.png)
+
 ## 6.论文
+
+[论文原文](./images/1570516549.pdf)
+
+## 7.彩蛋
+
+- Python绘图：[我的博客](http://www.damaoguo.site/2018/10/05/graph-drawing/)
